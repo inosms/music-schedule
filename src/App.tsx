@@ -1,23 +1,31 @@
-import React from 'react';
-import logo from './logo.svg';
 import './App.css';
 
+import { tryAuthorizeStep2TokenExchange } from './auth/auth';
+import { useTokenStorage } from './auth/tokenStorage';
+import LoginButton from './LoginButton';
+import { useEffect } from 'react';
+
 function App() {
+  const { setToken, isLoggedIn } = useTokenStorage();
+
+  useEffect(() => {
+    tryAuthorizeStep2TokenExchange().then((token) => {
+      if (token) {
+        setToken(token);
+      }
+    });
+  }, []);
+
   return (
     <div className="App">
       <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
+        {isLoggedIn ? (
+          <p>
+            You are  logged in!
+          </p>
+        ) : (
+          <LoginButton />
+        )}
       </header>
     </div>
   );
