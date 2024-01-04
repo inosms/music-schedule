@@ -10,7 +10,7 @@ const redirectUrlProd = 'https://music-time-table.simonschlegl.com';
 
 const authorizationEndpoint = "https://accounts.spotify.com/authorize";
 const tokenEndpoint = "https://accounts.spotify.com/api/token";
-const scope = 'user-read-private user-read-email'; // TODO
+const scope = 'user-modify-playback-state playlist-read-private playlist-modify-public playlist-modify-private';
 
 // Returns true if the current environment is a development environment
 function isDevelopmentEnvironment(): boolean {
