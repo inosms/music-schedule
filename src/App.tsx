@@ -1,7 +1,7 @@
 import { BrowserRouter } from 'react-router-dom';
 import './App.css';
 import { useSpotify } from './hooks/useSpotify';
-import UserPlaylistSelection from './UserPlaylistSelection';
+import Router from './components/Router';
 
 const clientId = '553fb95155e2496292584bc36823741d';
 const redirectUrlDev = 'http://localhost:3000';
@@ -19,7 +19,7 @@ function getRedirectUrl(): string {
 }
 
 function App() {
-  const sdk = useSpotify(
+  const spotify = useSpotify(
     clientId,
     getRedirectUrl(),
     scopes,
@@ -28,7 +28,7 @@ function App() {
   return (
     <BrowserRouter>
       <div className="App">
-        <UserPlaylistSelection sdk={sdk} />
+        <Router spotify={spotify} />
       </div >
     </BrowserRouter>
   );
