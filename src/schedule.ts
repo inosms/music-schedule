@@ -1,8 +1,8 @@
 import { PlaylistedTrack } from "@spotify/web-api-ts-sdk";
 
 export class Schedule {
-    minutesPerSlot: number[];
-    songsPerSlot: number[];
+    private minutesPerSlot: number[];
+    private songsPerSlot: number[];
 
     private constructor(minutesPerSlot: number[], songsPerSlot: number[]) {
         this.minutesPerSlot = minutesPerSlot;
@@ -64,13 +64,17 @@ export class Schedule {
 }
 
 export class PlaylistWithSchedule {
-    playlistId: string;
-    tracks: PlaylistedTrack[];
-    schedule: Schedule;
+    private playlistId: string;
+    private tracks: PlaylistedTrack[];
+    private schedule: Schedule;
 
     constructor(playlistId: string, tracks: PlaylistedTrack[], schedule: Schedule) {
         this.playlistId = playlistId;
         this.tracks = tracks;
         this.schedule = schedule;
+    }
+
+    getSchedule(): Schedule {
+        return this.schedule;
     }
 }
