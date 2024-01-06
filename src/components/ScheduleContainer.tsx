@@ -41,7 +41,7 @@ export default function ScheduleContainer({ spotify, playlistId }: { spotify: Sp
             {
                 slots.map((slot) => {
                     return (
-                        <ScheduleSlot key={slot.getStartTimeMinutes()} slot={slot} spotify={spotify} />
+                        <ScheduleSlot key={slot.getStartTimeMinutes()} slot={slot} spotify={spotify} syncing={true} />
                     );
                 })
             }

@@ -142,4 +142,41 @@ export class SlotWithTracks {
     getTracks(): PlaylistedTrack[] {
         return this.tracks;
     }
+
+    // Returns true when the slot should be played at the current time.
+    shouldPlayNow(): boolean {
+        const now = new Date();
+        const nowMinutes = now.getHours() * 60 + now.getMinutes();
+
+        return nowMinutes >= this.startTimeMinutes && nowMinutes < this.startTimeMinutes + this.lengthMinutes;
+    }
+
+    containsTrack(id: string): boolean {
+        return this.tracks.some((track) => track.track.id === id);
+    }
+
+    // Returns the track with the given index or null if the index is out of bounds.
+    getTrackByIndex(index: number): PlaylistedTrack | null {
+        if (index < 0 || index >= this.tracks.length) {
+            return null;
+        }
+
+        return this.tracks[index];
+    }
+
+    // Returns the track after the track with the given id or null if the track is not in this slot.
+    // If the track is the last track in the slot, the first track is returned.
+    getTrackAfter(id: string): PlaylistedTrack | null {
+        const index = this.tracks.findIndex((track) => track.track.id === id);
+        if (index === -1) {
+            return null;
+        }
+
+        return this.tracks[(index + 1) % this.tracks.length];
+    }
+
+    // Returns whether this slot is empty.
+    isEmpty(): boolean {
+        return this.tracks.length === 0;
+    }
 }
