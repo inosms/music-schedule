@@ -24,13 +24,23 @@ async function getPlaylistWithAllTracks(spotify: SpotifyApi, playlistId: string)
     return new PlaylistWithSchedule(playlist.id, tracks, timeTable);
 }
 
+async function updatePlaylistSchedule(spotify: SpotifyApi, playlistId: string, schedule: Schedule) {
+    const playlist = await spotify.playlists.getPlaylist(playlistId);
+    const oldDescription = playlist.description;
+    const newDescription = Schedule.removeScheduleFromString(oldDescription) + " " + schedule.toString();
+    console.debug("new description: ", newDescription);
+    await spotify.playlists.changePlaylistDetails(playlistId, {
+        description: newDescription,
+    });
+}
+
 export default function ScheduleContainer({ spotify, playlistId }: { spotify: SpotifyApi | null, playlistId: string }) {
-    const [slots, setSlots] = useState<SlotWithTracks[]>([]);
+    const [playlistWithSchedule, setPlaylistWithSchedule] = useState<PlaylistWithSchedule | null>(null);
     useEffect(() => {
         (async () => {
             if (spotify) {
-                const playlist = await getPlaylistWithAllTracks(spotify, playlistId);
-                setSlots(playlist?.getSlotsWithTracks() ?? []);
+                const playlistWithSchedule = await getPlaylistWithAllTracks(spotify, playlistId);
+                setPlaylistWithSchedule(playlistWithSchedule);
             }
         })();
     }, [spotify, playlistId]);
@@ -39,9 +49,26 @@ export default function ScheduleContainer({ spotify, playlistId }: { spotify: Sp
         <div>
             {playlistId}
             {
-                slots.map((slot) => {
+                playlistWithSchedule?.getSlotsWithTracks()?.map((slot, index) => {
                     return (
-                        <ScheduleSlot key={slot.getStartTimeMinutes()} slot={slot} spotify={spotify} syncing={true} />
+                        <ScheduleSlot
+                            key={slot.getStartTimeMinutes()}
+                            slot={slot}
+                            spotify={spotify}
+                            syncing={true}
+                            nextSlotLength={playlistWithSchedule.getSchedule().getSlotsLengthsForOneDay().at(index + 1) || 0}
+                            setLength={(length) => {
+                                let schedule = playlistWithSchedule.getSchedule();
+                                let newSchedule = schedule.resizeSlotLengthAt(index, length);
+                                let newPlaylist = playlistWithSchedule.newWithSchedule(newSchedule);
+                                setPlaylistWithSchedule(newPlaylist);
+                                console.debug("new playlist schedule: ", newPlaylist);
+
+                                if (spotify) {
+                                    updatePlaylistSchedule(spotify, playlistId, newSchedule);
+                                }
+                            }}
+                        />
                     );
                 })
             }

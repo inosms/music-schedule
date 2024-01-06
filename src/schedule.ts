@@ -20,6 +20,8 @@ export class Schedule {
         return new Schedule(timeTable.minutesPerSlot, timeTable.songsPerSlot);
     }
 
+    private static scheduleV1Regex = /\(msv1\|([0-9]+(,[0-9]+)*)\|([0-9]+(,[0-9]+)*)\)/;
+
     // Parse a schedule from a string. 
     // A schedule is of the form 
     //  (msv1|<number>*|<number>*)
@@ -30,8 +32,7 @@ export class Schedule {
     // If the input contains other characters than the schedule, they are ignored.
     // If the input contains multiple schedules, only the first one is returned.
     private static parseScheduleV1String(description: string): { minutesPerSlot: number[], songsPerSlot: number[] } | null {
-        const timeTableRegex = /\(msv1\|([0-9]+(,[0-9]+)*)\|([0-9]+(,[0-9]+)*)\)/g;
-        const match = timeTableRegex.exec(description);
+        const match = Schedule.scheduleV1Regex.exec(description);
         if (!match) {
             return null;
         }
@@ -50,6 +51,16 @@ export class Schedule {
         }
 
         return { minutesPerSlot, songsPerSlot };
+    }
+
+    public static removeScheduleFromString(description: string): string {
+        return description.replace(Schedule.scheduleV1Regex, '');
+    }
+
+    public toString(): string {
+        const minutesPerSlot = this.minutesPerSlot.join(',');
+        const songsPerSlot = this.songsPerSlot.join(',');
+        return `(msv1|${minutesPerSlot}|${songsPerSlot})`;
     }
 
     // Returns the number of minutes per slot for a given day.
@@ -80,6 +91,30 @@ export class Schedule {
 
         return slotsWithSongs;
     }
+
+    // Returns a new schedule with the slot at the given index resized to the given length.
+    // The slots after the given slot are resized to keep the absolute time of the following slots the same.
+    resizeSlotLengthAt(index: number, newLengthMinutes: number): Schedule {
+        if (index < 0) {
+            return this;
+        }
+
+        // Append new slots if the index is out of bounds.
+        if (index >= this.minutesPerSlot.length) {
+            return new Schedule([...this.minutesPerSlot, newLengthMinutes], [...this.songsPerSlot, 0]);
+        }
+
+        const newMinutesPerSlot = [...this.minutesPerSlot];
+        const diff = newLengthMinutes - newMinutesPerSlot[index];
+        newMinutesPerSlot[index] += diff;
+
+        // Resize the next slot to keep the absolute time of the following slots the same.
+        if (index < newMinutesPerSlot.length - 1) {
+            newMinutesPerSlot[index + 1] -= diff;
+        }
+
+        return new Schedule(newMinutesPerSlot, this.songsPerSlot);
+    }
 }
 
 export class PlaylistWithSchedule {
@@ -91,6 +126,10 @@ export class PlaylistWithSchedule {
         this.playlistId = playlistId;
         this.tracks = tracks;
         this.schedule = schedule;
+    }
+
+    newWithSchedule(schedule: Schedule): PlaylistWithSchedule {
+        return new PlaylistWithSchedule(this.playlistId, this.tracks, schedule);
     }
 
     getSchedule(): Schedule {
@@ -178,5 +217,10 @@ export class SlotWithTracks {
     // Returns whether this slot is empty.
     isEmpty(): boolean {
         return this.tracks.length === 0;
+    }
+
+    /// Returns whether this slot is the first slot of the day.
+    isFirstSlot(): boolean {
+        return this.startTimeMinutes === 0;
     }
 }

@@ -1,6 +1,7 @@
 import { SpotifyApi } from "@spotify/web-api-ts-sdk";
 import { SlotWithTracks } from "../schedule";
 import { useEffect } from "react";
+import { SlotTime } from "./SlotTime";
 
 // Skip over the next N tracks in the queue
 async function skipNTimes(spotify: SpotifyApi, elementsToSkip: number) {
@@ -54,7 +55,7 @@ async function syncSlot(slot: SlotWithTracks, spotify: SpotifyApi) {
     }
 }
 
-export default function ScheduleSlot({ spotify, slot, syncing }: { spotify: SpotifyApi | null, slot: SlotWithTracks, syncing: boolean }) {
+export default function ScheduleSlot({ spotify, slot, syncing, nextSlotLength, setLength }: { spotify: SpotifyApi | null, slot: SlotWithTracks, syncing: boolean, nextSlotLength: number, setLength: (time: number) => void }) {
     useEffect(() => {
         const checkIfPlaying = async () => {
             if (spotify && syncing && slot.shouldPlayNow() && !slot.isEmpty()) {
@@ -68,8 +69,19 @@ export default function ScheduleSlot({ spotify, slot, syncing }: { spotify: Spot
     }, [syncing])
 
     return (
-        <div>
-            {slot.getStartTimeMinutes()} - {slot.getStartTimeMinutes() + slot.getLengthMinutes()} minutes - {slot.getTracks().length} tracks -{slot.shouldPlayNow() ? 'playing' : ''}
+        <div style={{ border: "1px solid", padding: "5px", margin: "5px", borderColor: slot.shouldPlayNow() ? "red" : "black" }}>
+            {slot.isFirstSlot() ?
+                <SlotTime
+                    time={slot.getStartTimeMinutes()}
+                    setTime={(_time) => console.debug("can not set time of first slot")}
+                    minTime={0}
+                    maxTime={0} /> : null}
+            <div> {slot.getTracks().map((track) => <div key={track.track.id}>{track.track.name}</div>)}</div>
+            <SlotTime
+                time={slot.getStartTimeMinutes() + slot.getLengthMinutes()}
+                setTime={(time) => setLength(time - slot.getStartTimeMinutes())}
+                minTime={slot.getStartTimeMinutes() + 1}
+                maxTime={slot.getStartTimeMinutes() + slot.getLengthMinutes() + (Math.max(nextSlotLength - 1, 0))} />
         </div>
     );
 }
