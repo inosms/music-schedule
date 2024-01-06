@@ -58,7 +58,9 @@ export class Schedule {
         const slots = [...this.minutesPerSlot];
         const totalMinutes = slots.reduce((a, b) => a + b, 0);
         const remainingMinutes = 24 * 60 - totalMinutes;
-        slots.push(remainingMinutes);
+        if (remainingMinutes > 0) {
+            slots.push(remainingMinutes);
+        }
         return slots;
     }
 }
