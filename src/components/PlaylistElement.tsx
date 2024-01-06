@@ -1,11 +1,11 @@
+import { SimplifiedPlaylist } from '@spotify/web-api-ts-sdk';
 import { Link } from 'react-router-dom';
-import { TimeTableWithPlaylist } from "../timetable";
 
-export default function PlaylistElement({ timeTableWithPlaylist }: { timeTableWithPlaylist: TimeTableWithPlaylist }) {
+export default function PlaylistElement({ playlist }: { playlist: SimplifiedPlaylist }) {
     return (
         <div>
-            <Link to={{ search: '?playlist=' + timeTableWithPlaylist.playlist.id, }}>
-                {timeTableWithPlaylist.playlist.name} by {timeTableWithPlaylist.playlist.owner.display_name}
+            <Link to={{ search: '?playlist=' + playlist.id, }}>
+                {playlist.name} by {playlist.owner.display_name}
             </Link>
         </div>
     );

@@ -1,6 +1,7 @@
 import { SpotifyApi } from '@spotify/web-api-ts-sdk';
 import { useSearchParams, Link } from 'react-router-dom';
 import UserPlaylistSelection from './UserPlaylistSelection';
+import TimeTable from './TimeTableContainer';
 
 export default function Router({ spotify }: { spotify: SpotifyApi | null }) {
     const [searchParams] = useSearchParams();
@@ -8,7 +9,10 @@ export default function Router({ spotify }: { spotify: SpotifyApi | null }) {
 
     if (playlistId) {
         return (
-            <Link to={{ search: '' }}>Back</Link>
+            <div>
+                <Link to={{ search: '' }}>Back</Link>
+                <TimeTable spotify={spotify} playlistId={playlistId} />
+            </div>
         );
     } else {
         return (

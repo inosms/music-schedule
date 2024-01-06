@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react';
 import { SimplifiedPlaylist, SpotifyApi } from '@spotify/web-api-ts-sdk';
-import { TimeTableWithPlaylist, parseTimeTable } from '../timetable';
 import PlaylistElement from './PlaylistElement';
-
+import { TimeTable } from '../timetable';
 
 // Returns all playlists for the current user
 async function getAllPlaylistsForCurrentUser(spotify: SpotifyApi): Promise<SimplifiedPlaylist[]> {
@@ -20,30 +19,14 @@ async function getAllPlaylistsForCurrentUser(spotify: SpotifyApi): Promise<Simpl
     return playlists;
 }
 
-// Returns all playlists for the current user that have a timetable in their description
-async function getAllPlaylistsWithTimeTable(spotify: SpotifyApi): Promise<TimeTableWithPlaylist[]> {
-    const playlists = await getAllPlaylistsForCurrentUser(spotify);
-
-    // Of all the playlists the user has, only keep the ones that have a timetable in their description
-    const timeTableWithPlaylists = playlists.flatMap((playlist) => {
-        const timeTable = parseTimeTable(playlist.description);
-
-        if (timeTable) {
-            return [{ timeTable, playlist } as unknown as TimeTableWithPlaylist];
-        }
-        return [];
-    });
-
-    return timeTableWithPlaylists;
-}
-
 export default function UserPlaylistSelection({ spotify }: { spotify: SpotifyApi | null }) {
-    const [timeTableWithPlaylistState, setTimeTableWithPlaylistState] = useState<TimeTableWithPlaylist[]>([]);
+    const [playlists, setPlaylists] = useState<SimplifiedPlaylist[]>([]);
     useEffect(() => {
         (async () => {
             if (spotify) {
-                const playlists = await getAllPlaylistsWithTimeTable(spotify);
-                setTimeTableWithPlaylistState(playlists);
+                const playlists = await getAllPlaylistsForCurrentUser(spotify);
+                const playlistsWithTimeTable = playlists.filter((playlist) => TimeTable.hasTimeTable(playlist));
+                setPlaylists(playlistsWithTimeTable);
             }
         })();
     }, [spotify]);
@@ -51,9 +34,9 @@ export default function UserPlaylistSelection({ spotify }: { spotify: SpotifyApi
     return (
         <div>
             {
-                timeTableWithPlaylistState.map((timeTableWithPlaylist) => {
+                playlists.map((playlist) => {
                     return (
-                        <PlaylistElement key={timeTableWithPlaylist.playlist.id} timeTableWithPlaylist={timeTableWithPlaylist} />
+                        <PlaylistElement key={playlist.id} playlist={playlist} />
                     );
                 })
             }
