@@ -43,18 +43,34 @@ export class Schedule {
             return null;
         }
 
+        // the slots may not add up to more than 24 hours
+        const totalMinutes = minutesPerSlot.reduce((a, b) => a + b, 0);
+        if (totalMinutes > 24 * 60) {
+            return null;
+        }
+
         return { minutesPerSlot, songsPerSlot };
+    }
+
+    // Returns the number of minutes per slot for a given day.
+    // The last slot is padded with the remaining minutes so that the total is 24 hours.
+    getSlotsForOneDay(): number[] {
+        const slots = [...this.minutesPerSlot];
+        const totalMinutes = slots.reduce((a, b) => a + b, 0);
+        const remainingMinutes = 24 * 60 - totalMinutes;
+        slots.push(remainingMinutes);
+        return slots;
     }
 }
 
 export class PlaylistWithSchedule {
     playlistId: string;
     tracks: PlaylistedTrack[];
-    timeTable: Schedule;
+    schedule: Schedule;
 
-    constructor(playlistId: string, tracks: PlaylistedTrack[], timeTable: Schedule) {
+    constructor(playlistId: string, tracks: PlaylistedTrack[], schedule: Schedule) {
         this.playlistId = playlistId;
         this.tracks = tracks;
-        this.timeTable = timeTable;
+        this.schedule = schedule;
     }
 }
