@@ -54,7 +54,7 @@ export class Schedule {
 
     // Returns the number of minutes per slot for a given day.
     // The last slot is padded with the remaining minutes so that the total is 24 hours.
-    getSlotsForOneDay(): number[] {
+    getSlotsLengthsForOneDay(): number[] {
         const slots = [...this.minutesPerSlot];
         const totalMinutes = slots.reduce((a, b) => a + b, 0);
         const remainingMinutes = 24 * 60 - totalMinutes;
@@ -62,6 +62,23 @@ export class Schedule {
             slots.push(remainingMinutes);
         }
         return slots;
+    }
+
+    // Returns the slots for a given day with the number of songs per slot.
+    getSlotsWithSongsForOneDay(): { startTimeMinutes: number, lengthMinutes: number, songs: number }[] {
+        const slotTimes = this.getSlotsLengthsForOneDay();
+
+        const slotsWithSongs: { startTimeMinutes: number, lengthMinutes: number, songs: number }[] = [];
+        let startTimeMinutes = 0;
+
+        for (let i = 0; i < slotTimes.length; i++) {
+            const currentSlotLength = slotTimes[i];
+            const currentSlotSongs = this.songsPerSlot[i] ?? 0;
+            slotsWithSongs.push({ startTimeMinutes: startTimeMinutes, lengthMinutes: currentSlotLength, songs: currentSlotSongs });
+            startTimeMinutes += currentSlotLength;
+        }
+
+        return slotsWithSongs;
     }
 }
 
@@ -78,5 +95,51 @@ export class PlaylistWithSchedule {
 
     getSchedule(): Schedule {
         return this.schedule;
+    }
+
+    // Returns the slots for a given day with the tracks per slot.
+    getSlotsWithTracks(): SlotWithTracks[] {
+        const slotsWithSongs = this.schedule.getSlotsWithSongsForOneDay();
+
+        const slotsWithTracks: SlotWithTracks[] = [];
+        let currentTrack = 0;
+
+        for (let i = 0; i < slotsWithSongs.length; i++) {
+            const slot = slotsWithSongs[i];
+            const startTimeMinutes = slot.startTimeMinutes;
+            const lengthMinutes = slot.lengthMinutes;
+            const songs = slot.songs;
+
+            const tracksForSlot = this.tracks.slice(currentTrack, currentTrack + songs);
+            currentTrack += songs;
+
+            slotsWithTracks.push(new SlotWithTracks(startTimeMinutes, lengthMinutes, tracksForSlot));
+        }
+
+        return slotsWithTracks;
+    }
+}
+
+export class SlotWithTracks {
+    private startTimeMinutes: number;
+    private lengthMinutes: number;
+    private tracks: PlaylistedTrack[];
+
+    constructor(startTimeMinutes: number, lengthMinutes: number, tracks: PlaylistedTrack[]) {
+        this.startTimeMinutes = startTimeMinutes;
+        this.lengthMinutes = lengthMinutes;
+        this.tracks = tracks;
+    }
+
+    getStartTimeMinutes(): number {
+        return this.startTimeMinutes;
+    }
+
+    getLengthMinutes(): number {
+        return this.lengthMinutes;
+    }
+
+    getTracks(): PlaylistedTrack[] {
+        return this.tracks;
     }
 }
