@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { SimplifiedPlaylist, SpotifyApi } from '@spotify/web-api-ts-sdk';
 import PlaylistElement from './PlaylistElement';
-import { TimeTable } from '../timetable';
+import { Schedule } from '../schedule';
 
 // Returns all playlists for the current user
 async function getAllPlaylistsForCurrentUser(spotify: SpotifyApi): Promise<SimplifiedPlaylist[]> {
@@ -25,7 +25,7 @@ export default function UserPlaylistSelection({ spotify }: { spotify: SpotifyApi
         (async () => {
             if (spotify) {
                 const playlists = await getAllPlaylistsForCurrentUser(spotify);
-                const playlistsWithTimeTable = playlists.filter((playlist) => TimeTable.hasTimeTable(playlist));
+                const playlistsWithTimeTable = playlists.filter((playlist) => Schedule.fromString(playlist.description) !== null);
                 setPlaylists(playlistsWithTimeTable);
             }
         })();
