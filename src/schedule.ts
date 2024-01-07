@@ -22,7 +22,7 @@ export class Schedule {
         return new Schedule(timeTable.minutesPerSlot, timeTable.songsPerSlot);
     }
 
-    private static scheduleV1Regex = /\(msv1\|([0-9]+(,[0-9]+)*)\|([0-9]+(,[0-9]+)*)\)/;
+    private static scheduleV1Regex = /\(msv1\|(([0-9]+,?)*)\|(([0-9]+,?)*)\)/;
 
     // Parse a schedule from a string. 
     // A schedule is of the form 
@@ -39,8 +39,8 @@ export class Schedule {
             return null;
         }
 
-        const minutesPerSlot = match[1].split(',').map((s) => parseInt(s));
-        const songsPerSlot = match[3].split(',').map((s) => parseInt(s));
+        const minutesPerSlot = match[1].split(',').map((s) => parseInt(s)).filter((n) => !isNaN(n));
+        const songsPerSlot = match[3].split(',').map((s) => parseInt(s)).filter((n) => !isNaN(n));
 
         if (minutesPerSlot.length !== songsPerSlot.length) {
             return null;
@@ -131,6 +131,27 @@ export class Schedule {
         return new Schedule(this.minutesPerSlot, newSongsPerSlot);
     }
 
+    // Removes a slot at the given index.
+    // The songs and the time of the given slot will be moved to the next slot
+    removeSlotAt(index: number): Schedule {
+        if (index < 0 || index >= this.minutesPerSlot.length) {
+            return this;
+        }
+
+        const newMinutesPerSlot = [...this.minutesPerSlot];
+        const newSongsPerSlot = [...this.songsPerSlot];
+
+        if (index < newMinutesPerSlot.length - 1) {
+            newMinutesPerSlot[index + 1] += newMinutesPerSlot[index];
+            newSongsPerSlot[index + 1] += newSongsPerSlot[index];
+        }
+
+        newMinutesPerSlot.splice(index, 1);
+        newSongsPerSlot.splice(index, 1);
+
+        return new Schedule(newMinutesPerSlot, newSongsPerSlot);
+    }
+
     getSongCountAt(index: number): number {
         if (index < 0 || index >= this.songsPerSlot.length) {
             return 0;
@@ -206,11 +227,17 @@ export class SlotWithTracks {
     private startTimeMinutes: number;
     private lengthMinutes: number;
     private tracks: PlaylistedTrack[];
+    private id: string;
 
     constructor(startTimeMinutes: number, lengthMinutes: number, tracks: PlaylistedTrack[]) {
         this.startTimeMinutes = startTimeMinutes;
         this.lengthMinutes = lengthMinutes;
         this.tracks = tracks;
+        this.id = `id-${startTimeMinutes}-${lengthMinutes}-${tracks.map((track) => track.track.id).join('-')}`;
+    }
+
+    getId(): string {
+        return this.id;
     }
 
     getStartTimeMinutes(): number {
@@ -266,4 +293,9 @@ export class SlotWithTracks {
     isFirstSlot(): boolean {
         return this.startTimeMinutes === 0;
     }
+
+    // Returns whether this slot is the last slot of the day.
+    isLastSlot(): boolean {
+        return this.startTimeMinutes + this.lengthMinutes === 24 * 60;
+    }   
 }

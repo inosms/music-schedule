@@ -41,6 +41,7 @@ export default function ScheduleContainer({ spotify, playlistId }: { spotify: Sp
             if (spotify) {
                 const playlistWithSchedule = await getPlaylistWithAllTracks(spotify, playlistId);
                 setPlaylistWithSchedule(playlistWithSchedule);
+                console.debug("playlist with schedule: ", playlistWithSchedule);
             }
         })();
     }, [spotify, playlistId]);
@@ -52,7 +53,7 @@ export default function ScheduleContainer({ spotify, playlistId }: { spotify: Sp
                 playlistWithSchedule?.getSlotsWithTracks()?.map((slot, index) => {
                     return (
                         <ScheduleSlot
-                            key={slot.getStartTimeMinutes()}
+                            key={slot.getId()}
                             slot={slot}
                             spotify={spotify}
                             syncing={true}
@@ -82,8 +83,6 @@ export default function ScheduleContainer({ spotify, playlistId }: { spotify: Sp
                                 });
 
                                 let slotIndex = playlistWithSchedule.getSlotIndexByTrackId(id);
-                                // The track might be in the last implicit slot (the last one for the day)
-                                // In that case there will be no slot index
                                 if (slotIndex !== null) {
                                     let oldSongCount = playlistWithSchedule.getSchedule().getSongCountAt(slotIndex);
                                     let newSchedule = playlistWithSchedule.getSchedule().resizeSongCountAt(slotIndex, oldSongCount - 1);
@@ -93,6 +92,18 @@ export default function ScheduleContainer({ spotify, playlistId }: { spotify: Sp
                                     setPlaylistWithSchedule(newPlaylist);
                                     await updatePlaylistSchedule(spotify, playlistId, newSchedule);
                                 }
+                            }}
+                            onRemoveSlot={async () => {
+                                console.debug("removing slot: ", index);
+
+                                if (!spotify) {
+                                    return;
+                                }
+
+                                let newSchedule = playlistWithSchedule.getSchedule().removeSlotAt(index);
+                                let newPlaylist = playlistWithSchedule.newWithSchedule(newSchedule);
+                                setPlaylistWithSchedule(newPlaylist);
+                                await updatePlaylistSchedule(spotify, playlistId, newSchedule);
                             }}
                         />
                     );

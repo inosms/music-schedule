@@ -14,7 +14,7 @@ function parseTimeString(timeString: string): number | null {
     return hours * 60 + minutes;
 }
 
-export function SlotTime({ time, setTime, minTime, maxTime }: { time: number, setTime: (time: number) => void, minTime: number, maxTime: number }) {
+export function SlotTime({ time, setTime, minTime, maxTime, onRemove }: { time: number, setTime: (time: number) => void, minTime: number, maxTime: number, onRemove?: () => void }) {
     const [timeState, setTimeState] = useState(minutesToTimeString(time));
     const [timeStateValid, setTimeStateValid] = useState(true);
     
@@ -35,6 +35,8 @@ export function SlotTime({ time, setTime, minTime, maxTime }: { time: number, se
                         setTimeStateValid(false);
                     }
                 }} />
+
+            {onRemove ? <button onClick={() => onRemove()}>Remove Slot</button> : null}
         </div>
     );
 }

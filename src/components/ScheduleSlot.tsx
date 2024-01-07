@@ -56,7 +56,7 @@ async function syncSlot(slot: SlotWithTracks, spotify: SpotifyApi) {
     }
 }
 
-export default function ScheduleSlot({ spotify, slot, syncing, nextSlotLength, setLength, onRemoveTrack }: { spotify: SpotifyApi | null, slot: SlotWithTracks, syncing: boolean, nextSlotLength: number, setLength: (time: number) => void, onRemoveTrack: (uri: string, id: string) => void }) {
+export default function ScheduleSlot({ spotify, slot, syncing, nextSlotLength, setLength, onRemoveTrack, onRemoveSlot }: { spotify: SpotifyApi | null, slot: SlotWithTracks, syncing: boolean, nextSlotLength: number, setLength: (time: number) => void, onRemoveTrack: (uri: string, id: string) => void , onRemoveSlot: () => void}) {
     useEffect(() => {
         const checkIfPlaying = async () => {
             if (spotify && syncing && slot.shouldPlayNow() && !slot.isEmpty()) {
@@ -76,12 +76,14 @@ export default function ScheduleSlot({ spotify, slot, syncing, nextSlotLength, s
                     time={slot.getStartTimeMinutes()}
                     setTime={(_time) => console.debug("can not set time of first slot")}
                     minTime={0}
-                    maxTime={0} /> : null}
+                    maxTime={0} 
+                    onRemove={slot.isLastSlot() ? undefined : () => onRemoveSlot()}
+                    /> : null}
             <div>
-                {slot.getTracks().map((track) => {
+                {slot.getTracks().map((track, index) => {
                     return (
                         <SlotSongElement
-                            key={track.track.id} 
+                            key={`slot-song-${index}-${track.track.id}`}
                             track={track} 
                             onRemove={() => onRemoveTrack(track.track.uri, track.track.id)}
                             />
@@ -93,7 +95,9 @@ export default function ScheduleSlot({ spotify, slot, syncing, nextSlotLength, s
                 time={slot.getStartTimeMinutes() + slot.getLengthMinutes()}
                 setTime={(time) => setLength(time - slot.getStartTimeMinutes())}
                 minTime={slot.getStartTimeMinutes() + 1}
-                maxTime={slot.getStartTimeMinutes() + slot.getLengthMinutes() + (Math.max(nextSlotLength - 1, 0))} />
+                maxTime={slot.getStartTimeMinutes() + slot.getLengthMinutes() + (Math.max(nextSlotLength - 1, 0))} 
+                onRemove={slot.isLastSlot() ? undefined : () => onRemoveSlot()}
+                />
         </div>
     );
 }
