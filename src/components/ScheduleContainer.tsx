@@ -57,7 +57,7 @@ export default function ScheduleContainer({ spotify, playlistId }: { spotify: Sp
                             slot={slot}
                             spotify={spotify}
                             syncing={true}
-                            nextSlotLength={playlistWithSchedule.getSchedule().getSlotsLengthsForOneDay().at(index + 1) || 0}
+                            nextSlot={playlistWithSchedule.getSlotsWithTracks().at(index + 1) || null}
                             setLength={(length) => {
                                 let schedule = playlistWithSchedule.getSchedule();
                                 let newSchedule = schedule.resizeSlotLengthAt(index, length);

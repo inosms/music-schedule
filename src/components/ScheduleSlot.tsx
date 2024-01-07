@@ -49,7 +49,7 @@ async function syncSlot(slot: SlotWithTracks, spotify: SpotifyApi) {
     }
 }
 
-export default function ScheduleSlot({ spotify, slot, syncing, nextSlotLength, setLength, onRemoveTrack, onRemoveSlot }: { spotify: SpotifyApi | null, slot: SlotWithTracks, syncing: boolean, nextSlotLength: number, setLength: (time: number) => void, onRemoveTrack: (uri: string, id: string) => void, onRemoveSlot: () => void }) {
+export default function ScheduleSlot({ spotify, slot, syncing, nextSlot, setLength, onRemoveTrack, onRemoveSlot }: { spotify: SpotifyApi | null, slot: SlotWithTracks, syncing: boolean, nextSlot: SlotWithTracks | null, setLength: (time: number) => void, onRemoveTrack: (uri: string, id: string) => void, onRemoveSlot: () => void }) {
     useEffect(() => {
         const checkIfPlaying = async () => {
             if (spotify && syncing && slot.shouldPlayNow() && !slot.isEmpty()) {
@@ -73,19 +73,21 @@ export default function ScheduleSlot({ spotify, slot, syncing, nextSlotLength, s
                             minTime={0}
                             maxTime={0}
                             onRemove={slot.isLastSlot() || slot.isFirstSlot() ? undefined : () => onRemoveSlot()}
+                            isActive={slot.shouldPlayNow()}
                         />
                     </div>
                 </div> : null}
             <div className="schedule-slot">
                 <div className="time-line">
-                    <div className="separatorline" />
+                    <div className={"separatorline" + (slot.shouldPlayNow() ? " -playing" : "")}></div>
                     <div className="bottom">
                         <SlotTime
                             time={slot.getStartTimeMinutes() + slot.getLengthMinutes()}
                             setTime={(time) => setLength(time - slot.getStartTimeMinutes())}
                             minTime={slot.getStartTimeMinutes() + 1}
-                            maxTime={slot.getStartTimeMinutes() + slot.getLengthMinutes() + (Math.max(nextSlotLength - 1, 0))}
+                            maxTime={slot.getStartTimeMinutes() + slot.getLengthMinutes() + (Math.max((nextSlot?.getLengthMinutes() || 0) - 1, 0))}
                             onRemove={slot.isLastSlot() ? undefined : () => onRemoveSlot()}
+                            isActive={slot.shouldPlayNow() || nextSlot?.shouldPlayNow()}
                         />
                     </div>
                 </div>

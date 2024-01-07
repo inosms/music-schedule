@@ -16,14 +16,14 @@ function parseTimeString(timeString: string): number | null {
     return hours * 60 + minutes;
 }
 
-export function SlotTime({ time, setTime, minTime, maxTime, onRemove }: { time: number, setTime: (time: number) => void, minTime: number, maxTime: number, onRemove?: () => void }) {
+export function SlotTime({ time, setTime, minTime, maxTime, onRemove, isActive }: { time: number, setTime: (time: number) => void, minTime: number, maxTime: number, onRemove?: () => void, isActive?: boolean }) {
     const [timeState, setTimeState] = useState(minutesToTimeString(time));
     const [timeStateValid, setTimeStateValid] = useState(true);
 
     return (
         <div className="slot-time">
             <input
-                className={"time " + (timeStateValid ? "" : "-invalid")}
+                className={"time" + (timeStateValid ? "" : " -invalid") + (isActive ? " -playing" : "")}
                 type="text"
                 value={timeState}
                 onChange={(e) => {

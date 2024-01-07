@@ -1,8 +1,7 @@
 .remove-button {
     scale: 0.0;
     --button-size: 1.5rem;
-    --button-background: hsl(0, 30%, 60%);
-    --button-background-active: hsl(0, 60%, 60%);
+    --button-background: var(--element-abort);
 
     background-color: var(--button-background);
     color: var(--text-color-bright);
@@ -27,7 +26,7 @@
     cursor: pointer;
 
     &:hover {
-        background-color: var(--button-background-active);
+        transform: scale(1.1);
     }
 
     transition: background-color 0.05s ease-in-out;

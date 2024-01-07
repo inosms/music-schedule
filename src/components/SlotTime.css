@@ -10,7 +10,8 @@
         text-align: center;
         border: none;
         border-radius: 0.5rem;
-        background-color: var(--element-background);
+        background-color: var(--element-background-idle);
+        color: var(--element-foreground-idle);
 
         &.-invalid {
             color: hsl(0, 60%, 60%);
@@ -19,6 +20,11 @@
         &:focus {
             outline: none;
             background-color: var(--element-background-active);
+        }
+
+        &.-playing {
+            background-color: var(--element-background-playing);
+            color: var(--element-foreground-playing);
         }
     }
 }

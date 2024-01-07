@@ -32,6 +32,10 @@
     >.separatorline {
         height: 100%;
         width: 0px;
-        border-right: 4px dotted var(--element-background);
+        border-right: 4px dotted var(--element-background-idle);
+
+        &.-playing {
+            border-color: var(--element-background-playing);
+        }
     }
 }
