@@ -1,5 +1,6 @@
 :root {
   --element-background: hsl(0, 0%, 80%);
+  --text-color-bright: hsl(0, 0%, 95%);
 }
 
 body {
