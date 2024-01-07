@@ -1,3 +1,4 @@
+import "./ScheduleSlot.css";
 import { SpotifyApi } from "@spotify/web-api-ts-sdk";
 import { SlotWithTracks } from "../schedule";
 import { useEffect } from "react";
@@ -62,16 +63,25 @@ export default function ScheduleSlot({ spotify, slot, syncing, nextSlotLength, s
     }, [syncing, slot, spotify])
 
     return (
-        <div style={{ border: "3px solid", padding: "5px", margin: "5px", borderColor: slot.shouldPlayNow() ? "red" : "black" }}>
-            {slot.isFirstSlot() ?
+        <div className="schedule-slot">
+            <div className="timeline">
+                {slot.isFirstSlot() ?
+                    <SlotTime
+                        time={slot.getStartTimeMinutes()}
+                        setTime={(_time) => console.debug("can not set time of first slot")}
+                        minTime={0}
+                        maxTime={0}
+                        onRemove={slot.isLastSlot() ? undefined : () => onRemoveSlot()}
+                    /> : null}
                 <SlotTime
-                    time={slot.getStartTimeMinutes()}
-                    setTime={(_time) => console.debug("can not set time of first slot")}
-                    minTime={0}
-                    maxTime={0}
+                    time={slot.getStartTimeMinutes() + slot.getLengthMinutes()}
+                    setTime={(time) => setLength(time - slot.getStartTimeMinutes())}
+                    minTime={slot.getStartTimeMinutes() + 1}
+                    maxTime={slot.getStartTimeMinutes() + slot.getLengthMinutes() + (Math.max(nextSlotLength - 1, 0))}
                     onRemove={slot.isLastSlot() ? undefined : () => onRemoveSlot()}
-                /> : null}
-            <div>
+                />
+            </div>
+            <div className="tracks">
                 {slot.getTracks().map((track, index) => {
                     return (
                         <SlotSongElement
@@ -82,14 +92,6 @@ export default function ScheduleSlot({ spotify, slot, syncing, nextSlotLength, s
                     );
                 })}
             </div>
-            <div> </div>
-            <SlotTime
-                time={slot.getStartTimeMinutes() + slot.getLengthMinutes()}
-                setTime={(time) => setLength(time - slot.getStartTimeMinutes())}
-                minTime={slot.getStartTimeMinutes() + 1}
-                maxTime={slot.getStartTimeMinutes() + slot.getLengthMinutes() + (Math.max(nextSlotLength - 1, 0))}
-                onRemove={slot.isLastSlot() ? undefined : () => onRemoveSlot()}
-            />
         </div>
     );
 }
