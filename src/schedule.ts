@@ -254,6 +254,21 @@ export class PlaylistWithSchedule {
 
         return null;
     }
+
+    // Returns the track index for the given track id or null if the track is not in the playlist.
+    getIndexByTrackId(trackId: string): number | null {
+        return this.tracks.findIndex((track) => track.track.id === trackId);
+    }
+
+    getTrackNumBeforeSlot(slotIndex: number): number {
+        const slots = this.getSlotsWithTracks();
+        let trackNum = 0;
+        for (let i = 0; i < slotIndex; i++) {
+            trackNum += slots[i].getTracks().length;
+        }
+
+        return trackNum;
+    }
 }
 
 export class SlotWithTracks {

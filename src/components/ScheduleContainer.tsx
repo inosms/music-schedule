@@ -119,6 +119,32 @@ export default function ScheduleContainer({ spotify, playlistId }: { spotify: Sp
                                 setPlaylistWithSchedule(newPlaylist);
                                 await updatePlaylistSchedule(spotify, playlistId, newSchedule);
                             }}
+                            onDragAndDropTrack={async (id, indexInSlot) => {
+                                console.debug("drag and drop track: ", id, indexInSlot);
+                                const currentSlotIndex = playlistWithSchedule.getSlotIndexByTrackId(id);
+
+                                // When moving the track to a different slot we need to remove it from the old slot
+                                let newSchedule = playlistWithSchedule.getSchedule();
+                                if (currentSlotIndex !== index && currentSlotIndex !== null) {
+                                    newSchedule = newSchedule.resizeSongCountAt(currentSlotIndex, newSchedule.getSongCountAt(currentSlotIndex) - 1);
+                                    newSchedule = newSchedule.resizeSongCountAt(index, newSchedule.getSongCountAt(index) + 1);
+                                }
+
+                                const currentTrackIndex = playlistWithSchedule.getIndexByTrackId(id);
+                                if (currentTrackIndex !== null) {
+                                    const newTrackIndex = indexInSlot + playlistWithSchedule.getTrackNumBeforeSlot(index);
+                                    let tracks = playlistWithSchedule.getTracks();
+                                    const track = tracks[currentTrackIndex];
+                                    tracks.splice(currentTrackIndex, 1);
+                                    tracks.splice(newTrackIndex, 0, track);
+                                    let newPlaylist = playlistWithSchedule
+                                        .newWithTracks(tracks)
+                                        .newWithSchedule(newSchedule);
+
+                                    setPlaylistWithSchedule(newPlaylist);
+                                    await spotify?.playlists.movePlaylistItems(playlistId, currentTrackIndex, 1, newTrackIndex);
+                                }
+                            }}
                         />
                     );
                 })

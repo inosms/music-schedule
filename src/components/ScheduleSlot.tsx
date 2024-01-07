@@ -5,6 +5,8 @@ import { useEffect, useState } from "react";
 import { SlotTime } from "./SlotTime";
 import { SlotSongElement } from "./SlotSongElement";
 import { AddButton } from "./AddButton";
+import { SongDropArea } from "./SongDropArea";
+import { on } from "events";
 
 // Skip over the next N tracks in the queue
 async function skipNTimes(spotify: SpotifyApi, elementsToSkip: number) {
@@ -54,7 +56,28 @@ async function syncSlot(slot: SlotWithTracks, spotify: SpotifyApi): Promise<stri
     }
 }
 
-export default function ScheduleSlot({ spotify, slot, syncing, nextSlot, setLength, onRemoveTrack, onRemoveSlot, splitSlot }: { spotify: SpotifyApi | null, slot: SlotWithTracks, syncing: boolean, nextSlot: SlotWithTracks | null, setLength: (time: number) => void, onRemoveTrack: (uri: string, id: string) => void, onRemoveSlot: () => void, splitSlot: () => void }) {
+export default function ScheduleSlot(
+    {
+        spotify,
+        slot,
+        syncing,
+        nextSlot,
+        setLength,
+        onRemoveTrack,
+        onRemoveSlot,
+        splitSlot,
+        onDragAndDropTrack,
+    }: {
+        spotify: SpotifyApi | null,
+        slot: SlotWithTracks,
+        syncing: boolean,
+        nextSlot: SlotWithTracks | null,
+        setLength: (time: number) => void,
+        onRemoveTrack: (uri: string, id: string) => void,
+        onRemoveSlot: () => void,
+        splitSlot: () => void,
+        onDragAndDropTrack: (id: string, index: number) => void,
+    }) {
     const [currentlyPlayingId, setCurrentlyPlayingId] = useState<string | null>(null);
 
     useEffect(() => {
@@ -102,14 +125,18 @@ export default function ScheduleSlot({ spotify, slot, syncing, nextSlot, setLeng
                     </div>
                 </div>
                 <div className="tracks">
+                    <SongDropArea droppedSong={(track) => onDragAndDropTrack(track, 0)} />
                     {slot.getTracks().map((track, index) => {
                         return (
-                            <SlotSongElement
-                                key={`slot-song-${index}-${track.track.id}`}
-                                track={track}
-                                onRemove={() => onRemoveTrack(track.track.uri, track.track.id)}
-                                currentlyPlaying={track.track.id === currentlyPlayingId}
-                            />
+                            <div>
+                                <SlotSongElement
+                                    key={`slot-song-${index}-${track.track.id}`}
+                                    track={track}
+                                    onRemove={() => onRemoveTrack(track.track.uri, track.track.id)}
+                                    currentlyPlaying={track.track.id === currentlyPlayingId}
+                                />
+                                <SongDropArea droppedSong={(track) => onDragAndDropTrack(track, index + 1)} />
+                            </div>
                         );
                     })}
                     {slot.isEmpty() ? <div className="empty">Empty</div> : null}

@@ -7,6 +7,7 @@
     --element-foreground-idle: rgb(97, 107, 103);
     --element-abort: hsl(15, 90%, 60%);
     --text-color-bright: hsl(0, 0%, 95%);
+    --drop-area-over: hsl(205, 100%, 27%);
   }
 
   @media (prefers-color-scheme: dark) {
@@ -18,6 +19,7 @@
     --element-foreground-idle: hsl(156, 5%, 95%);
     --element-abort: hsl(15, 90%, 60%);
     --text-color-bright: hsl(0, 0%, 95%);
+    --drop-area-over: hsl(205, 100%, 40%);
   }
 }
 

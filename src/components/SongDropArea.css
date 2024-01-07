@@ -1,0 +1,13 @@
+.drop-area {
+    position: relative;
+
+    margin-top: -10px;
+    width: 100%;
+    height: 20px;
+
+    scale: 1.2;
+
+    &.-over {
+        background-color: var(--drop-area-over);
+    }
+}
