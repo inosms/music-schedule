@@ -105,6 +105,18 @@ export default function ScheduleContainer({ spotify, playlistId }: { spotify: Sp
                                 setPlaylistWithSchedule(newPlaylist);
                                 await updatePlaylistSchedule(spotify, playlistId, newSchedule);
                             }}
+                            splitSlot={async () => {
+                                console.debug("splitting slot: ", index);
+
+                                if (!spotify) {
+                                    return;
+                                }
+
+                                let newSchedule = playlistWithSchedule.getSchedule().splitSlotAt(index);
+                                let newPlaylist = playlistWithSchedule.newWithSchedule(newSchedule);
+                                setPlaylistWithSchedule(newPlaylist);
+                                await updatePlaylistSchedule(spotify, playlistId, newSchedule);
+                            }}
                         />
                     );
                 })

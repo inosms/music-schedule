@@ -159,6 +159,39 @@ export class Schedule {
 
         return this.songsPerSlot[index];
     }
+
+
+    // Returns a new schedule with the slot at the given index split in two.
+    // All songs will be moved to the latter slot.
+    splitSlotAt(index: number): Schedule {
+        if (index < 0) {
+            return this;
+        }
+
+        if (index >= this.minutesPerSlot.length) {
+            const lastSlotLength = this.getSlotsLengthsForOneDay().pop() ?? 0;
+
+            if (lastSlotLength === 0) {
+                return this;
+            }
+
+            return new Schedule([...this.minutesPerSlot, lastSlotLength / 2], [...this.songsPerSlot, 0]);
+        }
+
+        const newMinutesPerSlot = [...this.minutesPerSlot];
+        const newSongsPerSlot = [...this.songsPerSlot];
+
+        const currentSlotLength = newMinutesPerSlot[index];
+        const currentSlotSongs = newSongsPerSlot[index];
+
+        newMinutesPerSlot[index] = currentSlotLength / 2;
+        newSongsPerSlot[index] = 0;
+
+        newMinutesPerSlot.splice(index + 1, 0, currentSlotLength / 2);
+        newSongsPerSlot.splice(index + 1, 0, currentSlotSongs);
+
+        return new Schedule(newMinutesPerSlot, newSongsPerSlot);
+    }
 }
 
 export class PlaylistWithSchedule {
@@ -297,5 +330,5 @@ export class SlotWithTracks {
     // Returns whether this slot is the last slot of the day.
     isLastSlot(): boolean {
         return this.startTimeMinutes + this.lengthMinutes === 24 * 60;
-    }   
+    }
 }

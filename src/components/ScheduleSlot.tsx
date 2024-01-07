@@ -4,6 +4,7 @@ import { SlotWithTracks } from "../schedule";
 import { useEffect } from "react";
 import { SlotTime } from "./SlotTime";
 import { SlotSongElement } from "./SlotSongElement";
+import { AddButton } from "./AddButton";
 
 // Skip over the next N tracks in the queue
 async function skipNTimes(spotify: SpotifyApi, elementsToSkip: number) {
@@ -49,7 +50,7 @@ async function syncSlot(slot: SlotWithTracks, spotify: SpotifyApi) {
     }
 }
 
-export default function ScheduleSlot({ spotify, slot, syncing, nextSlot, setLength, onRemoveTrack, onRemoveSlot }: { spotify: SpotifyApi | null, slot: SlotWithTracks, syncing: boolean, nextSlot: SlotWithTracks | null, setLength: (time: number) => void, onRemoveTrack: (uri: string, id: string) => void, onRemoveSlot: () => void }) {
+export default function ScheduleSlot({ spotify, slot, syncing, nextSlot, setLength, onRemoveTrack, onRemoveSlot, splitSlot }: { spotify: SpotifyApi | null, slot: SlotWithTracks, syncing: boolean, nextSlot: SlotWithTracks | null, setLength: (time: number) => void, onRemoveTrack: (uri: string, id: string) => void, onRemoveSlot: () => void, splitSlot: () => void }) {
     useEffect(() => {
         const checkIfPlaying = async () => {
             if (spotify && syncing && slot.shouldPlayNow() && !slot.isEmpty()) {
@@ -79,6 +80,8 @@ export default function ScheduleSlot({ spotify, slot, syncing, nextSlot, setLeng
                 </div> : null}
             <div className="schedule-slot">
                 <div className="time-line">
+                    <div className={"separatorline" + (slot.shouldPlayNow() ? " -playing" : "")}></div>
+                    <AddButton onAdd={() => splitSlot()} playing={slot.shouldPlayNow()} />
                     <div className={"separatorline" + (slot.shouldPlayNow() ? " -playing" : "")}></div>
                     <div className="bottom">
                         <SlotTime

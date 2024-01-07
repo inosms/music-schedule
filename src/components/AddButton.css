@@ -1,0 +1,45 @@
+.add-button {
+    scale: 0.7;
+    --button-size: 1.3rem;
+
+    background-color: transparent;
+
+    text-align: center;
+    vertical-align: middle;
+    padding: 0px;
+
+    border-radius: 30%;
+    border: none;
+
+    width: var(--button-size);
+    height: var(--button-size);
+
+    cursor: pointer;
+
+    &:hover {
+        transform: scale(1.2);
+
+        &.-playing {
+            color: var(--element-foreground-playing);
+        }
+
+        &:not(.-playing) {
+            color: var(--element-foreground-idle);
+        }
+    }
+
+    transition: scale color;
+    transition-duration: 0.2s;
+
+    &.-playing {
+        color: var(--element-background-playing);
+    }
+
+    &:not(.-playing) {
+        color: var(--element-background-idle);
+    }
+}
+
+*:hover>.add-button {
+    scale: 1.0;
+}
