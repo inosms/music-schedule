@@ -22,7 +22,7 @@ export function SlotTime({ time, setTime, minTime, maxTime, onRemove }: { time: 
     return (
         <div className="slot-time">
             <input
-                style={{ borderColor: timeStateValid ? "black" : "red" }}
+                className={"time " + (timeStateValid ? "" : "-invalid")}
                 type="text"
                 value={timeState}
                 onChange={(e) => {

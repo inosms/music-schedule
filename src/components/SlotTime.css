@@ -20,7 +20,8 @@
         border: none;
 
         position: relative;
-        right: calc(var(--button-size) * -1);
+        right: calc(var(--button-size) * -0.5);
+        top: calc(var(--button-size) * -0.5);
 
         width: var(--button-size);
         height: var(--button-size);
@@ -40,5 +41,29 @@
 
     &:hover > .removebutton {
         scale: 1.0;
+        transition-delay: 0s;
+    }
+
+    &:not(:hover) > .removebutton {
+        transition-delay: 2s;
+    }
+
+    .time {
+        padding: 0.4rem;
+        font-size: 1.2rem;
+        width: 80px;
+        text-align: center;
+        border: none;
+        border-radius: 0.5rem;
+        background-color: var(--element-background);
+
+        &.-invalid {
+            color: hsl(0, 60%, 60%);
+        }
+
+        &:focus {
+            outline: none;
+            background-color: var(--element-background-active);
+        }
     }
 }
