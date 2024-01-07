@@ -10,12 +10,14 @@ function msToMinutesAndSeconds(ms: number): string {
 
 export function SlotSongElement({ track, onRemove }: { track: PlaylistedTrack, onRemove: () => void }) {
     return (
-        <div className="song-element">
-            <div className="name">
-                {track.track.name}
-            </div>
-            <div className="duration">
-                {msToMinutesAndSeconds(track.track.duration_ms)}
+        <div className="horizontal-container">
+            <div className="song-element">
+                <div className="name">
+                    {track.track.name}
+                </div>
+                <div className="duration">
+                    {msToMinutesAndSeconds(track.track.duration_ms)}
+                </div>
             </div>
             <RemoveButton onRemove={onRemove} />
         </div>

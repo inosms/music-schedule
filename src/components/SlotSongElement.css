@@ -1,6 +1,15 @@
-.song-element {
+.horizontal-container {
+    margin: 0.5rem;
     display: grid;
-    grid-template-columns: auto 50px 50px;
+    grid-template-columns: 95% auto;
+}
+.song-element {
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+    background-color: var(--element-background-idle);
+
+    display: grid;
+    grid-template-columns: auto 50px;
 
     >.name {
         padding: 0.4rem;
@@ -10,6 +19,10 @@
 
         text-decoration: none;
         color: var(--text-color-dark);
+
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
     .duration {
