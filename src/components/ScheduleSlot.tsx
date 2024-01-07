@@ -71,7 +71,7 @@ export default function ScheduleSlot({ spotify, slot, syncing, nextSlotLength, s
                         setTime={(_time) => console.debug("can not set time of first slot")}
                         minTime={0}
                         maxTime={0}
-                        onRemove={slot.isLastSlot() ? undefined : () => onRemoveSlot()}
+                        onRemove={slot.isLastSlot() || slot.isFirstSlot() ? undefined : () => onRemoveSlot()}
                     /> : null}
                 <div className="separatorline" />
                 <div className="bottom">
