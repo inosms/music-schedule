@@ -68,6 +68,32 @@ export default function ScheduleContainer({ spotify, playlistId }: { spotify: Sp
                                     updatePlaylistSchedule(spotify, playlistId, newSchedule);
                                 }
                             }}
+                            onRemoveTrack={async (uri, id) => {
+                                console.debug("removing track: ", uri);
+
+                                if (!spotify) {
+                                    return;
+                                }
+
+                                await spotify.playlists.removeItemsFromPlaylist(playlistId, {
+                                    tracks: [{
+                                        uri: uri,
+                                    }]
+                                });
+
+                                let slotIndex = playlistWithSchedule.getSlotIndexByTrackId(id);
+                                // The track might be in the last implicit slot (the last one for the day)
+                                // In that case there will be no slot index
+                                if (slotIndex !== null) {
+                                    let oldSongCount = playlistWithSchedule.getSchedule().getSongCountAt(slotIndex);
+                                    let newSchedule = playlistWithSchedule.getSchedule().resizeSongCountAt(slotIndex, oldSongCount - 1);
+                                    let newPlaylist = playlistWithSchedule
+                                        .newWithTracks(playlistWithSchedule.getTracks().filter((track) => track.track.uri !== uri))
+                                        .newWithSchedule(newSchedule);
+                                    setPlaylistWithSchedule(newPlaylist);
+                                    await updatePlaylistSchedule(spotify, playlistId, newSchedule);
+                                }
+                            }}
                         />
                     );
                 })

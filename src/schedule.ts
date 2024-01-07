@@ -1,5 +1,7 @@
 import { PlaylistedTrack } from "@spotify/web-api-ts-sdk";
 
+const SPOTIFY_MAX_PLAYLIST_LENGTH = 10000;
+
 export class Schedule {
     private minutesPerSlot: number[];
     private songsPerSlot: number[];
@@ -84,7 +86,7 @@ export class Schedule {
 
         for (let i = 0; i < slotTimes.length; i++) {
             const currentSlotLength = slotTimes[i];
-            const currentSlotSongs = this.songsPerSlot[i] ?? 0;
+            const currentSlotSongs = this.songsPerSlot[i] ?? SPOTIFY_MAX_PLAYLIST_LENGTH;
             slotsWithSongs.push({ startTimeMinutes: startTimeMinutes, lengthMinutes: currentSlotLength, songs: currentSlotSongs });
             startTimeMinutes += currentSlotLength;
         }
@@ -115,6 +117,27 @@ export class Schedule {
 
         return new Schedule(newMinutesPerSlot, this.songsPerSlot);
     }
+
+    // Returns a new schedule with the slot at the given index resized to the given number of songs.
+    // Other slots are not changed.
+    resizeSongCountAt(index: number, newSongCount: number): Schedule {
+        if (index < 0 || index >= this.songsPerSlot.length) {
+            return this;
+        }
+
+        const newSongsPerSlot = [...this.songsPerSlot];
+        newSongsPerSlot[index] = newSongCount;
+
+        return new Schedule(this.minutesPerSlot, newSongsPerSlot);
+    }
+
+    getSongCountAt(index: number): number {
+        if (index < 0 || index >= this.songsPerSlot.length) {
+            return 0;
+        }
+
+        return this.songsPerSlot[index];
+    }
 }
 
 export class PlaylistWithSchedule {
@@ -130,6 +153,14 @@ export class PlaylistWithSchedule {
 
     newWithSchedule(schedule: Schedule): PlaylistWithSchedule {
         return new PlaylistWithSchedule(this.playlistId, this.tracks, schedule);
+    }
+
+    newWithTracks(tracks: PlaylistedTrack[]): PlaylistWithSchedule {
+        return new PlaylistWithSchedule(this.playlistId, tracks, this.schedule);
+    }
+
+    getTracks(): PlaylistedTrack[] {
+        return this.tracks;
     }
 
     getSchedule(): Schedule {
@@ -156,6 +187,18 @@ export class PlaylistWithSchedule {
         }
 
         return slotsWithTracks;
+    }
+
+    // Returns the slot index for the given track id or null if the track is not in the playlist.
+    getSlotIndexByTrackId(trackId: string): number | null {
+        const slots = this.getSlotsWithTracks();
+        for (let i = 0; i < slots.length; i++) {
+            if (slots[i].containsTrack(trackId)) {
+                return i;
+            }
+        }
+
+        return null;
     }
 }
 

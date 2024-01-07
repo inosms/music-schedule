@@ -2,6 +2,7 @@ import { SpotifyApi } from "@spotify/web-api-ts-sdk";
 import { SlotWithTracks } from "../schedule";
 import { useEffect } from "react";
 import { SlotTime } from "./SlotTime";
+import { SlotSongElement } from "./SlotSongElement";
 
 // Skip over the next N tracks in the queue
 async function skipNTimes(spotify: SpotifyApi, elementsToSkip: number) {
@@ -55,7 +56,7 @@ async function syncSlot(slot: SlotWithTracks, spotify: SpotifyApi) {
     }
 }
 
-export default function ScheduleSlot({ spotify, slot, syncing, nextSlotLength, setLength }: { spotify: SpotifyApi | null, slot: SlotWithTracks, syncing: boolean, nextSlotLength: number, setLength: (time: number) => void }) {
+export default function ScheduleSlot({ spotify, slot, syncing, nextSlotLength, setLength, onRemoveTrack }: { spotify: SpotifyApi | null, slot: SlotWithTracks, syncing: boolean, nextSlotLength: number, setLength: (time: number) => void, onRemoveTrack: (uri: string, id: string) => void }) {
     useEffect(() => {
         const checkIfPlaying = async () => {
             if (spotify && syncing && slot.shouldPlayNow() && !slot.isEmpty()) {
@@ -76,7 +77,18 @@ export default function ScheduleSlot({ spotify, slot, syncing, nextSlotLength, s
                     setTime={(_time) => console.debug("can not set time of first slot")}
                     minTime={0}
                     maxTime={0} /> : null}
-            <div> {slot.getTracks().map((track) => <div key={track.track.id}>{track.track.name}</div>)}</div>
+            <div>
+                {slot.getTracks().map((track) => {
+                    return (
+                        <SlotSongElement
+                            key={track.track.id} 
+                            track={track} 
+                            onRemove={() => onRemoveTrack(track.track.uri, track.track.id)}
+                            />
+                    );
+                })}
+            </div>
+            <div> </div>
             <SlotTime
                 time={slot.getStartTimeMinutes() + slot.getLengthMinutes()}
                 setTime={(time) => setLength(time - slot.getStartTimeMinutes())}
