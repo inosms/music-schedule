@@ -1,13 +1,24 @@
 :root {
-  --element-background: hsl(0, 0%, 80%);
-  --element-background-active: hsl(205, 22%, 80%);
-  --element-background-playing: hsl(156, 90%, 58%);
-  --element-foreground-playing: hsl(156, 90%, 20%);
-  --element-background-idle: hsl(156, 5%, 92%);
-  --element-foreground-idle: rgb(97, 107, 103);
-  --element-abort: hsl(15, 90%, 60%);
-  --text-color-bright: hsl(0, 0%, 95%);
-  --text-color-dark: hsl(0, 0%, 13%);
+  @media (prefers-color-scheme: light) {
+    --element-background-active: hsl(205, 22%, 80%);
+    --element-background-playing: hsl(156, 90%, 58%);
+    --element-foreground-playing: hsl(156, 90%, 20%);
+    --element-background-idle: hsl(156, 5%, 92%);
+    --element-foreground-idle: rgb(97, 107, 103);
+    --element-abort: hsl(15, 90%, 60%);
+    --text-color-bright: hsl(0, 0%, 95%);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    background-color: hsl(0, 0%, 12%);
+    --element-background-active: hsl(205, 22%, 60%);
+    --element-background-playing: hsl(156, 80%, 30%);
+    --element-foreground-playing: hsl(156, 80%, 95%);
+    --element-background-idle: hsl(156, 5%, 30%);
+    --element-foreground-idle: hsl(156, 5%, 95%);
+    --element-abort: hsl(15, 90%, 60%);
+    --text-color-bright: hsl(0, 0%, 95%);
+  }
 }
 
 body {

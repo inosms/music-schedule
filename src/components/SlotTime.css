@@ -17,14 +17,14 @@
             color: hsl(0, 60%, 60%);
         }
 
-        &:focus {
-            outline: none;
-            background-color: var(--element-background-active);
-        }
-
         &.-playing {
             background-color: var(--element-background-playing);
             color: var(--element-foreground-playing);
+        }
+
+        &:focus {
+            outline: none;
+            outline: 2px solid var(--element-background-active);
         }
     }
 }
