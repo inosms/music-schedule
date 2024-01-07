@@ -3,51 +3,6 @@
     flex-direction: row;
     align-items: center;
 
-    >.removebutton {
-        scale: 0.0;
-        --button-size: 1.5rem;
-        --button-background: hsl(0, 30%, 60%);
-        --button-background-active: hsl(0, 60%, 60%);
-
-        background-color: var(--button-background);
-        color: var(--text-color-bright);
-
-        text-align: center;
-        vertical-align: middle;
-        padding: 0px;
-
-        border-radius: 30%;
-        border: none;
-
-        position: relative;
-        right: calc(var(--button-size) * -0.5);
-        top: calc(var(--button-size) * -0.5);
-
-        width: var(--button-size);
-        height: var(--button-size);
-
-        /* In order to make the button not take up space */
-        margin-left: calc(var(--button-size) * -1);
-
-        cursor: pointer;
-
-        &:hover {
-            background-color: var(--button-background-active);
-        }
-
-        transition: background-color 0.1s ease-in-out;
-        transition: scale 0.1s ease-in-out;
-    }
-
-    &:hover > .removebutton {
-        scale: 1.0;
-        transition-delay: 0s;
-    }
-
-    &:not(:hover) > .removebutton {
-        transition-delay: 2s;
-    }
-
     .time {
         padding: 0.4rem;
         font-size: 1.2rem;
