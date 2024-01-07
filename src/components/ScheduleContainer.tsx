@@ -1,6 +1,6 @@
-import { Playlist, SpotifyApi } from '@spotify/web-api-ts-sdk';
+import { SpotifyApi } from '@spotify/web-api-ts-sdk';
 import { useEffect, useState } from 'react';
-import { PlaylistWithSchedule, Schedule, SlotWithTracks } from '../schedule';
+import { PlaylistWithSchedule, Schedule } from '../schedule';
 import ScheduleSlot from './ScheduleSlot';
 
 async function getPlaylistWithAllTracks(spotify: SpotifyApi, playlistId: string): Promise<PlaylistWithSchedule | null> {
