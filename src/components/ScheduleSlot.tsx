@@ -66,10 +66,10 @@ export default function ScheduleSlot({ spotify, slot, syncing, nextSlotLength, s
         checkIfPlaying(); // check immediately
 
         return () => clearInterval(intervalId);
-    }, [syncing])
+    }, [syncing, slot])
 
     return (
-        <div style={{ border: "1px solid", padding: "5px", margin: "5px", borderColor: slot.shouldPlayNow() ? "red" : "black" }}>
+        <div style={{ border: "3px solid", padding: "5px", margin: "5px", borderColor: slot.shouldPlayNow() ? "red" : "black" }}>
             {slot.isFirstSlot() ?
                 <SlotTime
                     time={slot.getStartTimeMinutes()}
