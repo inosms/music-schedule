@@ -1,0 +1,21 @@
+.song-element {
+    display: grid;
+    grid-template-columns: auto 50px;
+
+    >.name {
+        padding: 0.4rem;
+        font-size: 1.2rem;
+        text-align: left;
+        border: none;
+
+        text-decoration: none;
+        color: var(--text-color-dark);
+    }
+
+    .duration {
+        padding: 0.4rem;
+        font-size: 1.2rem;
+        text-align: right;
+        border: none;
+    }
+}
