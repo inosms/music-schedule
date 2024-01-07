@@ -1,6 +1,6 @@
 .remove-button {
     scale: 0.0;
-    --button-size: 1.5rem;
+    --button-size: 1.3rem;
     --button-background: var(--element-abort);
 
     background-color: var(--button-background);
@@ -14,7 +14,7 @@
     border: none;
 
     position: relative;
-    right: calc(var(--button-size) * -0.5);
+    right: calc(var(--button-size) * -0.7);
     top: calc(var(--button-size) * -0.5);
 
     width: var(--button-size);
@@ -26,18 +26,19 @@
     cursor: pointer;
 
     &:hover {
-        transform: scale(1.1);
+        transform: scale(1.2);
     }
 
-    transition: background-color 0.05s ease-in-out;
-    transition: scale 0.05s ease-in-out;
+    transition: scale;
 }
 
 *:hover > .remove-button {
     scale: 1.0;
     transition-delay: 0s;
+    transition-duration: 0s;
 }
 
 *:not(:hover) > .remove-button {
     transition-delay: 2s;
+    transition-duration: 0.2s;
 }

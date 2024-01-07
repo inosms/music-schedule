@@ -12,14 +12,12 @@ export function SlotSongElement({ track, onRemove }: { track: PlaylistedTrack, o
     return (
         <div className="song-element">
             <div className="name">
-                <span>
-                    {track.track.name}
-                </span>
-                <RemoveButton onRemove={onRemove} />
+                {track.track.name}
             </div>
             <div className="duration">
                 {msToMinutesAndSeconds(track.track.duration_ms)}
             </div>
+            <RemoveButton onRemove={onRemove} />
         </div>
     );
 }
