@@ -2,6 +2,8 @@ import { SpotifyApi } from '@spotify/web-api-ts-sdk';
 import { useEffect, useState } from 'react';
 import { PlaylistWithSchedule, Schedule } from '../schedule';
 import ScheduleSlot from './ScheduleSlot';
+import { DndProvider } from 'react-dnd';
+import { HTML5Backend } from 'react-dnd-html5-backend';
 
 async function getPlaylistWithAllTracks(spotify: SpotifyApi, playlistId: string): Promise<PlaylistWithSchedule | null> {
     const playlist = await spotify.playlists.getPlaylist(playlistId);
@@ -47,7 +49,7 @@ export default function ScheduleContainer({ spotify, playlistId }: { spotify: Sp
     }, [spotify, playlistId]);
 
     return (
-        <div>
+        <DndProvider backend={HTML5Backend}>
             {playlistId}
             {
                 playlistWithSchedule?.getSlotsWithTracks()?.map((slot, index) => {
@@ -121,6 +123,6 @@ export default function ScheduleContainer({ spotify, playlistId }: { spotify: Sp
                     );
                 })
             }
-        </div>
+        </DndProvider>
     );
 }

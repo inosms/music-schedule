@@ -3,16 +3,32 @@
     display: grid;
     grid-template-columns: 95% auto;
 }
+
 .song-element {
     padding: 0.5rem;
     border-radius: 0.5rem;
     background-color: var(--element-background-idle);
     color: var(--element-foreground-idle);
 
+    transition: scale background-color color;
+    transition-duration: 0.2s;
+
+    &:hover {
+        scale: 1.03;
+    }
+
     &.-playing {
         background-color: var(--element-background-playing);
         color: var(--element-foreground-playing);
     }
+
+    &.-dragging {
+        scale: 0.95;
+        filter: brightness(0.5);
+    }
+
+
+    cursor: grab;
 
     display: grid;
     grid-template-columns: auto 50px;
