@@ -3,15 +3,26 @@
     grid-template-columns: 25% auto;
 
     >.tracks {
-        --horizontal-padding: 1.5rem;
-        padding-top: var(--horizontal-padding);
+        --horizontal-padding: 2rem;
         padding-bottom: var(--horizontal-padding);
+        min-height: 3rem;
+
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+
+        .empty {
+            color: hsl(0, 0%, 50%);
+            font-size: 1.2rem;
+            text-align: center;
+            font-style: italic;
+        }
     }
 }
 
 .time-line {
     display: flex;
-    flex-direction: column;    
+    flex-direction: column;
     align-items: center;
 
     >.bottom {
