@@ -29,12 +29,18 @@ export function SlotTime({ time, setTime, minTime, maxTime, onRemove }: { time: 
 
                     const newTime = parseTimeString(e.target.value);
                     if (newTime !== null && newTime >= minTime && newTime <= maxTime) {
-                        setTime(newTime);
                         setTimeStateValid(true);
                     } else {
                         setTimeStateValid(false);
                     }
-                }} />
+                }} 
+                onBlur={() => {
+                    const newTime = parseTimeString(timeState);
+                    if (newTime && timeStateValid) {
+                        setTime(newTime);
+                    }
+                }}
+                />
 
             {onRemove ? <button onClick={() => onRemove()}>Remove Slot</button> : null}
         </div>
