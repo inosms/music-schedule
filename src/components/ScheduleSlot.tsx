@@ -64,7 +64,7 @@ export default function ScheduleSlot({ spotify, slot, syncing, nextSlotLength, s
 
     return (
         <div className="schedule-slot">
-            <div className="timeline">
+            <div className="time-line">
                 {slot.isFirstSlot() ?
                     <SlotTime
                         time={slot.getStartTimeMinutes()}
@@ -73,13 +73,16 @@ export default function ScheduleSlot({ spotify, slot, syncing, nextSlotLength, s
                         maxTime={0}
                         onRemove={slot.isLastSlot() ? undefined : () => onRemoveSlot()}
                     /> : null}
-                <SlotTime
-                    time={slot.getStartTimeMinutes() + slot.getLengthMinutes()}
-                    setTime={(time) => setLength(time - slot.getStartTimeMinutes())}
-                    minTime={slot.getStartTimeMinutes() + 1}
-                    maxTime={slot.getStartTimeMinutes() + slot.getLengthMinutes() + (Math.max(nextSlotLength - 1, 0))}
-                    onRemove={slot.isLastSlot() ? undefined : () => onRemoveSlot()}
-                />
+                <div className="separatorline" />
+                <div className="bottom">
+                    <SlotTime
+                        time={slot.getStartTimeMinutes() + slot.getLengthMinutes()}
+                        setTime={(time) => setLength(time - slot.getStartTimeMinutes())}
+                        minTime={slot.getStartTimeMinutes() + 1}
+                        maxTime={slot.getStartTimeMinutes() + slot.getLengthMinutes() + (Math.max(nextSlotLength - 1, 0))}
+                        onRemove={slot.isLastSlot() ? undefined : () => onRemoveSlot()}
+                    />
+                </div>
             </div>
             <div className="tracks">
                 {slot.getTracks().map((track, index) => {

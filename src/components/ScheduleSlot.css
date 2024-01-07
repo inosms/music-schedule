@@ -1,4 +1,26 @@
 .schedule-slot {
     display: grid;
     grid-template-columns: 25% auto;
+
+    >.tracks {
+        --horizontal-padding: 1.5rem;
+        padding-top: var(--horizontal-padding);
+        padding-bottom: var(--horizontal-padding);
+    }
+}
+
+.time-line {
+    display: flex;
+    flex-direction: column;    
+    align-items: center;
+
+    >.bottom {
+        margin-top: auto;
+    }
+
+    >.separatorline {
+        height: 100%;
+        width: 0px;
+        border-right: 4px dotted var(--element-background);
+    }
 }
