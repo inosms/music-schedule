@@ -1,3 +1,4 @@
+import { RemoveButton } from "./RemoveButton";
 import "./SlotSongElement.css"
 import { PlaylistedTrack } from "@spotify/web-api-ts-sdk";
 
@@ -10,13 +11,15 @@ function msToMinutesAndSeconds(ms: number): string {
 export function SlotSongElement({ track, onRemove }: { track: PlaylistedTrack, onRemove: () => void }) {
     return (
         <div className="song-element">
-            <a className="name" href={track.track.external_urls.spotify}>
-                {track.track.name}
-            </a>
+            <div className="name">
+                <span>
+                    {track.track.name}
+                </span>
+                <RemoveButton onRemove={onRemove} />
+            </div>
             <div className="duration">
                 {msToMinutesAndSeconds(track.track.duration_ms)}
             </div>
-            {/* <button onClick={() => onRemove()}>Remove</button> */}
         </div>
     );
 }
