@@ -5,7 +5,7 @@ import Router from './components/Router';
 
 const clientId = '553fb95155e2496292584bc36823741d';
 const redirectUrlDev = 'http://localhost:3000';
-const redirectUrlProd = 'https://music-time-table.simonschlegl.com';
+const redirectUrlProd = 'https://music-schedule.simonschlegl.com';
 const scopes = ['user-read-currently-playing', 'user-read-playback-state'];
 
 // Returns true if the current environment is a development environment
