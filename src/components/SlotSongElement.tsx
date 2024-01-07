@@ -8,10 +8,10 @@ function msToMinutesAndSeconds(ms: number): string {
     return minutes + ":" + (seconds < 10 ? '0' : '') + seconds;
 }
 
-export function SlotSongElement({ track, onRemove }: { track: PlaylistedTrack, onRemove: () => void }) {
+export function SlotSongElement({ track, onRemove, currentlyPlaying }: { track: PlaylistedTrack, onRemove: () => void, currentlyPlaying: boolean }) {
     return (
         <div className="horizontal-container">
-            <div className="song-element">
+            <div className={"song-element" + (currentlyPlaying ? " -playing" : "")}>
                 <div className="name">
                     {track.track.name}
                 </div>

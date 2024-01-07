@@ -1,7 +1,7 @@
 import "./ScheduleSlot.css";
 import { SpotifyApi } from "@spotify/web-api-ts-sdk";
 import { SlotWithTracks } from "../schedule";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { SlotTime } from "./SlotTime";
 import { SlotSongElement } from "./SlotSongElement";
 import { AddButton } from "./AddButton";
@@ -27,7 +27,8 @@ async function skipUntilTrackInSlot(spotify: SpotifyApi, slot: SlotWithTracks) {
 
 // Modify the currently playing track and the queue of the player so that it plays a track in the slot.
 // If it is already playing a track in the slot, it will do nothing.
-async function syncSlot(slot: SlotWithTracks, spotify: SpotifyApi) {
+// Returns the id of the track that is currently playing or null if no track is playing.
+async function syncSlot(slot: SlotWithTracks, spotify: SpotifyApi): Promise<string | null> {
     const queue = await spotify.player.getUsersQueue();
 
     const currentTrack = queue.currently_playing?.id;
@@ -47,14 +48,20 @@ async function syncSlot(slot: SlotWithTracks, spotify: SpotifyApi) {
 
     if (!currentlyPlayingTrackInSlot) {
         await skipUntilTrackInSlot(spotify, slot);
+        return slot.getTrackByIndex(0)?.track.id || null;
+    } else {
+        return currentTrack;
     }
 }
 
 export default function ScheduleSlot({ spotify, slot, syncing, nextSlot, setLength, onRemoveTrack, onRemoveSlot, splitSlot }: { spotify: SpotifyApi | null, slot: SlotWithTracks, syncing: boolean, nextSlot: SlotWithTracks | null, setLength: (time: number) => void, onRemoveTrack: (uri: string, id: string) => void, onRemoveSlot: () => void, splitSlot: () => void }) {
+    const [currentlyPlayingId, setCurrentlyPlayingId] = useState<string | null>(null);
+
     useEffect(() => {
         const checkIfPlaying = async () => {
             if (spotify && syncing && slot.shouldPlayNow() && !slot.isEmpty()) {
-                await syncSlot(slot, spotify);
+                const currentlyPlaying = await syncSlot(slot, spotify);
+                setCurrentlyPlayingId(currentlyPlaying);
             }
         }
         const intervalId = setInterval(checkIfPlaying, 30000);
@@ -101,6 +108,7 @@ export default function ScheduleSlot({ spotify, slot, syncing, nextSlot, setLeng
                                 key={`slot-song-${index}-${track.track.id}`}
                                 track={track}
                                 onRemove={() => onRemoveTrack(track.track.uri, track.track.id)}
+                                currentlyPlaying={track.track.id === currentlyPlayingId}
                             />
                         );
                     })}

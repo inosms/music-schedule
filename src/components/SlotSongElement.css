@@ -7,6 +7,12 @@
     padding: 0.5rem;
     border-radius: 0.5rem;
     background-color: var(--element-background-idle);
+    color: var(--element-foreground-idle);
+
+    &.-playing {
+        background-color: var(--element-background-playing);
+        color: var(--element-foreground-playing);
+    }
 
     display: grid;
     grid-template-columns: auto 50px;
