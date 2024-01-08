@@ -99,6 +99,7 @@ export default function ScheduleSlot(
                 <div className="schedule-slot">
                     <div className="time-line">
                         <SlotTime
+                            key={slot.getId()}
                             time={slot.getStartTimeMinutes()}
                             setTime={(_time) => console.debug("can not set time of first slot")}
                             minTime={0}
@@ -115,6 +116,7 @@ export default function ScheduleSlot(
                     <div className={"separatorline" + (slot.shouldPlayNow() ? " -playing" : "")}></div>
                     <div className="bottom">
                         <SlotTime
+                            key={slot.getId() + "-bottom"}
                             time={slot.getStartTimeMinutes() + slot.getLengthMinutes()}
                             setTime={(time) => setLength(time - slot.getStartTimeMinutes())}
                             minTime={slot.getStartTimeMinutes() + 1}
@@ -125,17 +127,16 @@ export default function ScheduleSlot(
                     </div>
                 </div>
                 <div className="tracks">
-                    <SongDropArea droppedSong={(track) => onDragAndDropTrack(track, 0)} />
+                    <SongDropArea droppedSong={(track) => onDragAndDropTrack(track, 0)} key={slot.getId() + "-0-drop-area"} />
                     {slot.getTracks().map((track, index) => {
                         return (
-                            <div>
+                            <div key={`slot-song-${index}-${track.track.id}`}>
                                 <SlotSongElement
-                                    key={`slot-song-${index}-${track.track.id}`}
                                     track={track}
                                     onRemove={() => onRemoveTrack(track.track.uri, track.track.id)}
                                     currentlyPlaying={track.track.id === currentlyPlayingId}
                                 />
-                                <SongDropArea droppedSong={(track) => onDragAndDropTrack(track, index + 1)} />
+                                <SongDropArea droppedSong={(track) => onDragAndDropTrack(track, index + 1)} key={slot.getId() + "-" + (index + 1) + "-drop-area"} />
                             </div>
                         );
                     })}

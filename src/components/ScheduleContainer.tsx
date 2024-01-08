@@ -55,7 +55,7 @@ export default function ScheduleContainer({ spotify, playlistId }: { spotify: Sp
                 playlistWithSchedule?.getSlotsWithTracks()?.map((slot, index) => {
                     return (
                         <ScheduleSlot
-                            key={slot.getId()}
+                            key={slot.getId() + "-slot"}
                             slot={slot}
                             spotify={spotify}
                             syncing={true}
@@ -131,7 +131,7 @@ export default function ScheduleContainer({ spotify, playlistId }: { spotify: Sp
                                 }
 
                                 const currentTrackIndex = playlistWithSchedule.getIndexByTrackId(id);
-                                if (currentTrackIndex !== null) {
+                                if (currentTrackIndex !== null && spotify) {
                                     const newTrackIndex = indexInSlot + playlistWithSchedule.getTrackNumBeforeSlot(index);
                                     let tracks = playlistWithSchedule.getTracks();
                                     const track = tracks[currentTrackIndex];
@@ -142,7 +142,8 @@ export default function ScheduleContainer({ spotify, playlistId }: { spotify: Sp
                                         .newWithSchedule(newSchedule);
 
                                     setPlaylistWithSchedule(newPlaylist);
-                                    await spotify?.playlists.movePlaylistItems(playlistId, currentTrackIndex, 1, newTrackIndex);
+                                    await spotify.playlists.movePlaylistItems(playlistId, currentTrackIndex, 1, newTrackIndex);
+                                    await updatePlaylistSchedule(spotify, playlistId, newSchedule);
                                 }
                             }}
                         />
