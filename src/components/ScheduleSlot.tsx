@@ -78,19 +78,26 @@ export default function ScheduleSlot(
         onDragAndDropTrack: (id: string, index: number) => void,
     }) {
     const [currentlyPlayingId, setCurrentlyPlayingId] = useState<string | null>(null);
+    const [shouldPlayNow, setShouldPlayNow] = useState(false);
+    const [nextSlotShouldPlayNow, setNextSlotShouldPlayNow] = useState(false);
 
     useEffect(() => {
         const checkIfPlaying = async () => {
-            if (spotify && syncing && slot.shouldPlayNow() && !slot.isEmpty()) {
+            setShouldPlayNow(slot.shouldPlayNow() && syncing);
+            setNextSlotShouldPlayNow((nextSlot?.shouldPlayNow() || false) && syncing);
+
+            if (spotify && shouldPlayNow && !slot.isEmpty()) {
                 const currentlyPlaying = await syncSlot(slot, spotify);
                 setCurrentlyPlayingId(currentlyPlaying);
+            } else {
+                setCurrentlyPlayingId(null);
             }
         }
-        const intervalId = setInterval(checkIfPlaying, 30000);
+        const intervalId = setInterval(checkIfPlaying, 5000);
         checkIfPlaying(); // check immediately
 
         return () => clearInterval(intervalId);
-    }, [syncing, slot, spotify])
+    }, [syncing, slot, spotify, shouldPlayNow])
 
     return (
         <div>
@@ -98,21 +105,21 @@ export default function ScheduleSlot(
                 <div className="schedule-slot">
                     <div className="time-line">
                         <SlotTime
-                            key={slot.getId()}
+                            key={slot.getId() + "-top"}
                             time={slot.getStartTimeMinutes()}
                             setTime={(_time) => console.debug("can not set time of first slot")}
                             minTime={0}
                             maxTime={0}
                             onRemove={slot.isLastSlot() || slot.isFirstSlot() ? undefined : () => onRemoveSlot()}
-                            isActive={slot.shouldPlayNow() && syncing}
+                            isActive={shouldPlayNow}
                         />
                     </div>
                 </div> : null}
             <div className="schedule-slot">
                 <div className="time-line">
-                    <div className={"separatorline" + (slot.shouldPlayNow() && syncing ? " -playing" : "")}></div>
-                    <AddButton onAdd={() => splitSlot()} playing={slot.shouldPlayNow() && syncing} />
-                    <div className={"separatorline" + (slot.shouldPlayNow() && syncing ? " -playing" : "")}></div>
+                    <div className={"separatorline" + (shouldPlayNow ? " -playing" : "")}></div>
+                    <AddButton onAdd={() => splitSlot()} playing={shouldPlayNow} />
+                    <div className={"separatorline" + (shouldPlayNow ? " -playing" : "")}></div>
                     <div className="bottom">
                         <SlotTime
                             key={slot.getId() + "-bottom"}
@@ -121,7 +128,7 @@ export default function ScheduleSlot(
                             minTime={slot.getStartTimeMinutes() + 1}
                             maxTime={slot.getStartTimeMinutes() + slot.getLengthMinutes() + (Math.max((nextSlot?.getLengthMinutes() || 0) - 1, 0))}
                             onRemove={slot.isLastSlot() ? undefined : () => onRemoveSlot()}
-                            isActive={(slot.shouldPlayNow() || nextSlot?.shouldPlayNow()) && syncing}
+                            isActive={shouldPlayNow || nextSlotShouldPlayNow}
                         />
                     </div>
                 </div>
