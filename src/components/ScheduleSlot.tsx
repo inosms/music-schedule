@@ -97,7 +97,7 @@ export default function ScheduleSlot(
         checkIfPlaying(); // check immediately
 
         return () => clearInterval(intervalId);
-    }, [syncing, slot, spotify, shouldPlayNow])
+    }, [syncing, slot, spotify, shouldPlayNow, nextSlot])
 
     return (
         <div>
