@@ -6,7 +6,6 @@ import { SlotTime } from "./SlotTime";
 import { SlotSongElement } from "./SlotSongElement";
 import { AddButton } from "./AddButton";
 import { SongDropArea } from "./SongDropArea";
-import { on } from "events";
 
 // Skip over the next N tracks in the queue
 async function skipNTimes(spotify: SpotifyApi, elementsToSkip: number) {
