@@ -12,3 +12,45 @@
     display: flex;
     justify-content: center;
 }
+
+.no-schedule {
+    border-radius: 0.5rem;
+    background-color: var(--element-background-idle);
+    color: var(--element-foreground-idle);
+    padding: 2rem;
+    font-size: 1rem;
+
+    &.-can-add {
+        background-color: var(--element-background-playlist-with-schedule);
+        color: var(--element-foreground-playlist-with-schedule);
+    }
+
+    >.center {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+
+        >.addbutton {
+            padding: 0.5rem;
+            margin-top: 1.5rem;
+    
+            border-radius: 0.5rem;
+            border: none;
+            background-color: var(--element-foreground-playlist-with-schedule);
+            color: var(--element-background-playlist-with-schedule);
+            font-size: 1rem;
+    
+            cursor: pointer;
+    
+            transition: scale;
+            transition-duration: 0.2s;
+    
+            &:hover {
+                scale: 1.02;
+            }
+        }
+
+    }
+
+   
+}

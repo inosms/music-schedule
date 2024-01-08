@@ -200,6 +200,10 @@ export class Schedule {
 
         return new Schedule(newMinutesPerSlot, newSongsPerSlot);
     }
+
+    static defaultSchedule(): Schedule {
+        return new Schedule([], []);
+    }
 }
 
 export class PlaylistWithSchedule {

@@ -11,7 +11,7 @@ export function PlaylistHeader({ playlistWithSchedule, syncing, onToggleSync }: 
                 </svg>
             </Link>
             <div className={"title" + (syncing ? " -syncing" : "")}>
-                {playlistWithSchedule?.getTitle()}
+                {playlistWithSchedule?.getTitle() || "Loading..."}
             </div>
             <div className={"syncbutton" + (syncing ? " -syncing" : "")} onClick={() => onToggleSync()}>
                 {syncing ?
