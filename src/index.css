@@ -12,7 +12,10 @@
     --element-background-playlist-idle: rgba(209, 211, 210, 0.4);
     --element-foreground-playlist-idle: rgba(97, 107, 103, 1.0);
     --element-background-playlist-playing: hsla(156, 100%, 70%, 0.4);
-    --element-foreground-playlist-playing:hsl(156, 100%, 15%);
+    --element-foreground-playlist-playing: hsl(156, 100%, 15%);
+
+    --element-background-playlist-with-schedule: hsl(174, 100%, 30%);
+    --element-foreground-playlist-with-schedule: hsl(200, 90%, 100%);
   }
 
   @media (prefers-color-scheme: dark) {
@@ -29,14 +32,15 @@
     --element-background-playlist-idle: rgba(209, 211, 210, 0.4);
     --element-foreground-playlist-idle: hsl(156, 5%, 95%);
     --element-background-playlist-playing: hsla(156, 100%, 60%, 0.4);
-    --element-foreground-playlist-playing:hsl(156, 100%, 100%);
+    --element-foreground-playlist-playing: hsl(156, 100%, 100%);
+
+    --element-background-playlist-with-schedule: hsl(156, 90%, 30%);
+    --element-foreground-playlist-with-schedule: hsl(156, 90%, 100%);
   }
 
   --top-playlist-bar-height-without-padding: 2em;
   --top-playlist-padding: 1em;
-  --top-playlist-bar-height: calc(
-    2 * var(--top-playlist-bar-height-without-padding) + var(--top-playlist-padding)
-  );
+  --top-playlist-bar-height: calc(2 * var(--top-playlist-bar-height-without-padding) + var(--top-playlist-padding));
 }
 
 body {

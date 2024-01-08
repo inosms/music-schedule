@@ -1,3 +1,4 @@
+import "./UserPlaylistSelection.css";
 import { useEffect, useState } from 'react';
 import { SimplifiedPlaylist, SpotifyApi } from '@spotify/web-api-ts-sdk';
 import PlaylistElement from './PlaylistElement';
@@ -20,23 +21,34 @@ async function getAllPlaylistsForCurrentUser(spotify: SpotifyApi): Promise<Simpl
 }
 
 export default function UserPlaylistSelection({ spotify }: { spotify: SpotifyApi | null }) {
-    const [playlists, setPlaylists] = useState<SimplifiedPlaylist[]>([]);
+    const [playlistsWithSchedule, setPlaylistsWithSchedule] = useState<SimplifiedPlaylist[]>([]);
+    const [playlistsWithoutSchedule, setPlaylistsWithoutSchedule] = useState<SimplifiedPlaylist[]>([]);
     useEffect(() => {
         (async () => {
             if (spotify) {
                 const playlists = await getAllPlaylistsForCurrentUser(spotify);
-                const playlistsWithTimeTable = playlists.filter((playlist) => Schedule.fromString(playlist.description) !== null);
-                setPlaylists(playlistsWithTimeTable);
+                const playlistsWithSchedule = playlists.filter((playlist) => Schedule.fromString(playlist.description) !== null);
+                setPlaylistsWithSchedule(playlistsWithSchedule);
+                
+                const playlistsWithoutSchedule = playlists.filter((playlist) => Schedule.fromString(playlist.description) === null);
+                setPlaylistsWithoutSchedule(playlistsWithoutSchedule);
             }
         })();
     }, [spotify]);
 
     return (
-        <div>
+        <div className='playlist-selection-container'>
             {
-                playlists.map((playlist) => {
+                playlistsWithSchedule.map((playlist) => {
                     return (
-                        <PlaylistElement key={playlist.id} playlist={playlist} />
+                        <PlaylistElement key={playlist.id} playlist={playlist} hasSchedule={true} />
+                    );
+                })
+            }
+            {
+                playlistsWithoutSchedule.map((playlist) => {
+                    return (
+                        <PlaylistElement key={playlist.id} playlist={playlist} hasSchedule={false} />
                     );
                 })
             }

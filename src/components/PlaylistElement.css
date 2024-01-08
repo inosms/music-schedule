@@ -1,0 +1,42 @@
+.playlist-element {
+
+    --playlist-height: 1.3rem;
+    display: grid;
+    grid-template-columns: 50% auto 50px;
+
+    align-items: center;
+    padding: 1rem;
+    margin: 1rem;
+    height: var(--playlist-height);
+    border-radius: 0.5rem;
+    background-color: var(--element-background-idle);
+    color: var(--element-foreground-idle);
+    text-decoration: none;
+
+    transition: scale;
+    transition-duration: 0.2s;
+    cursor: pointer;
+
+    &:hover {
+        scale: 1.03;
+    }
+
+    &.-has-schedule {
+        background-color: var(--element-background-playlist-with-schedule);
+        color: var(--element-foreground-playlist-with-schedule);
+    }
+
+    >.icon {
+        justify-self: right;
+        text-align: center;
+
+        height: var(--playlist-height);
+        width: var(--playlist-height);
+    }
+
+    >.name {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+}

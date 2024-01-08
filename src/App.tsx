@@ -5,7 +5,14 @@ import Router from './components/Router';
 const clientId = '553fb95155e2496292584bc36823741d';
 const redirectUrlDev = 'http://localhost:3000';
 const redirectUrlProd = 'https://music-schedule.simonschlegl.com';
-const scopes = ['user-read-currently-playing', 'user-read-playback-state'];
+const scopes = [
+  'user-read-currently-playing',
+  'user-read-playback-state',
+  'user-modify-playback-state',
+  'playlist-read-private',
+  'playlist-read-collaborative',
+  'playlist-modify-public',
+  'playlist-modify-private'];
 
 // Returns true if the current environment is a development environment
 function isDevelopmentEnvironment(): boolean {
