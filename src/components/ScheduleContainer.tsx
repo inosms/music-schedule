@@ -31,7 +31,7 @@ async function getPlaylistWithAllTracks(spotify: SpotifyApi, playlistId: string)
 async function updatePlaylistSchedule(spotify: SpotifyApi, playlistId: string, schedule: Schedule) {
     const playlist = await spotify.playlists.getPlaylist(playlistId);
     const oldDescription = playlist.description;
-    const newDescription = Schedule.removeScheduleFromString(oldDescription) + " " + schedule.toString();
+    const newDescription = Schedule.removeScheduleFromString(oldDescription).trim() + " " + schedule.toString();
     console.debug("new description: ", newDescription);
     await spotify.playlists.changePlaylistDetails(playlistId, {
         description: newDescription,
