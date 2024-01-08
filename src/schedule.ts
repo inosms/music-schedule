@@ -9,6 +9,14 @@ export class Schedule {
     private constructor(minutesPerSlot: number[], songsPerSlot: number[]) {
         this.minutesPerSlot = minutesPerSlot;
         this.songsPerSlot = songsPerSlot;
+
+        // if the last slot goes until 24:00, remove it as we want to implicitly calculate it 
+        // with the maximum number of songs per slot
+        const totalMinutes = this.minutesPerSlot.reduce((a, b) => a + b, 0);
+        if (totalMinutes === 24 * 60) {
+            this.minutesPerSlot.pop();
+            this.songsPerSlot.pop();
+        }
     }
 
     // Create a schedule from a string containing a schedule.
