@@ -105,15 +105,15 @@ export default function ScheduleSlot(
                             minTime={0}
                             maxTime={0}
                             onRemove={slot.isLastSlot() || slot.isFirstSlot() ? undefined : () => onRemoveSlot()}
-                            isActive={slot.shouldPlayNow()}
+                            isActive={slot.shouldPlayNow() && syncing}
                         />
                     </div>
                 </div> : null}
             <div className="schedule-slot">
                 <div className="time-line">
-                    <div className={"separatorline" + (slot.shouldPlayNow() ? " -playing" : "")}></div>
-                    <AddButton onAdd={() => splitSlot()} playing={slot.shouldPlayNow()} />
-                    <div className={"separatorline" + (slot.shouldPlayNow() ? " -playing" : "")}></div>
+                    <div className={"separatorline" + (slot.shouldPlayNow() && syncing ? " -playing" : "")}></div>
+                    <AddButton onAdd={() => splitSlot()} playing={slot.shouldPlayNow() && syncing} />
+                    <div className={"separatorline" + (slot.shouldPlayNow() && syncing ? " -playing" : "")}></div>
                     <div className="bottom">
                         <SlotTime
                             key={slot.getId() + "-bottom"}
@@ -122,7 +122,7 @@ export default function ScheduleSlot(
                             minTime={slot.getStartTimeMinutes() + 1}
                             maxTime={slot.getStartTimeMinutes() + slot.getLengthMinutes() + (Math.max((nextSlot?.getLengthMinutes() || 0) - 1, 0))}
                             onRemove={slot.isLastSlot() ? undefined : () => onRemoveSlot()}
-                            isActive={slot.shouldPlayNow() || nextSlot?.shouldPlayNow()}
+                            isActive={(slot.shouldPlayNow() || nextSlot?.shouldPlayNow()) && syncing}
                         />
                     </div>
                 </div>
@@ -135,6 +135,7 @@ export default function ScheduleSlot(
                                     track={track}
                                     onRemove={() => onRemoveTrack(track.track.uri, track.track.id)}
                                     currentlyPlaying={track.track.id === currentlyPlayingId}
+                                    syncing={syncing}
                                 />
                                 <SongDropArea droppedSong={(track) => onDragAndDropTrack(track, index + 1)} key={slot.getId() + "-" + (index + 1) + "-drop-area"} />
                             </div>

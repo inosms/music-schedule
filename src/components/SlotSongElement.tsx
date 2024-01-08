@@ -9,7 +9,7 @@ function msToMinutesAndSeconds(ms: number): string {
     return minutes + ":" + (seconds < 10 ? '0' : '') + seconds;
 }
 
-export function SlotSongElement({ track, onRemove, currentlyPlaying }: { track: PlaylistedTrack, onRemove: () => void, currentlyPlaying: boolean }) {
+export function SlotSongElement({ track, onRemove, currentlyPlaying, syncing }: { track: PlaylistedTrack, onRemove: () => void, currentlyPlaying: boolean, syncing: boolean }) {
     const [{isDragging}, drag] = useDrag({
         type: "track",
         item: { track },
@@ -20,7 +20,7 @@ export function SlotSongElement({ track, onRemove, currentlyPlaying }: { track: 
 
     return (
         <div className="horizontal-container" ref={drag}>
-            <div className={"song-element" + (currentlyPlaying ? " -playing" : "") + (isDragging ? " -dragging" : "")}>
+            <div className={"song-element" + (currentlyPlaying && syncing ? " -playing" : "") + (isDragging ? " -dragging" : "")}>
                 <div className="name">
                     {track.track.name}
                 </div>

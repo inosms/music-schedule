@@ -68,7 +68,7 @@ export default function ScheduleContainer({ spotify, playlistId }: { spotify: Sp
                                 key={slot.getId() + "-slot"}
                                 slot={slot}
                                 spotify={spotify}
-                                syncing={true}
+                                syncing={syncing}
                                 nextSlot={playlistWithSchedule.getSlotsWithTracks().at(index + 1) || null}
                                 setLength={(length) => {
                                     let schedule = playlistWithSchedule.getSchedule();
