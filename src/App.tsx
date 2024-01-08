@@ -1,5 +1,4 @@
 import { BrowserRouter } from 'react-router-dom';
-import './App.css';
 import { useSpotify } from './hooks/useSpotify';
 import Router from './components/Router';
 

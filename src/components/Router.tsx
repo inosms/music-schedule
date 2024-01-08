@@ -1,5 +1,5 @@
 import { SpotifyApi } from '@spotify/web-api-ts-sdk';
-import { useSearchParams, Link } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import UserPlaylistSelection from './UserPlaylistSelection';
 import ScheduleContainer from './ScheduleContainer';
 
@@ -9,10 +9,7 @@ export default function Router({ spotify }: { spotify: SpotifyApi | null }) {
 
     if (playlistId) {
         return (
-            <div>
-                <Link to={{ search: '' }}>Back</Link>
-                <ScheduleContainer spotify={spotify} playlistId={playlistId} />
-            </div>
+            <ScheduleContainer spotify={spotify} playlistId={playlistId} />
         );
     } else {
         return (

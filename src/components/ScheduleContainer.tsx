@@ -1,9 +1,11 @@
+import './ScheduleContainer.css';
 import { SpotifyApi } from '@spotify/web-api-ts-sdk';
 import { useEffect, useState } from 'react';
 import { PlaylistWithSchedule, Schedule } from '../schedule';
 import ScheduleSlot from './ScheduleSlot';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
+import { PlaylistHeader } from './PlaylistHeader';
 
 async function getPlaylistWithAllTracks(spotify: SpotifyApi, playlistId: string): Promise<PlaylistWithSchedule | null> {
     const playlist = await spotify.playlists.getPlaylist(playlistId);
@@ -23,7 +25,7 @@ async function getPlaylistWithAllTracks(spotify: SpotifyApi, playlistId: string)
         return null;
     }
 
-    return new PlaylistWithSchedule(playlist.id, tracks, timeTable);
+    return new PlaylistWithSchedule(playlist.id, tracks, timeTable, playlist.name);
 }
 
 async function updatePlaylistSchedule(spotify: SpotifyApi, playlistId: string, schedule: Schedule) {
@@ -38,6 +40,7 @@ async function updatePlaylistSchedule(spotify: SpotifyApi, playlistId: string, s
 
 export default function ScheduleContainer({ spotify, playlistId }: { spotify: SpotifyApi | null, playlistId: string }) {
     const [playlistWithSchedule, setPlaylistWithSchedule] = useState<PlaylistWithSchedule | null>(null);
+    const [syncing, setSyncing] = useState(false);
     useEffect(() => {
         (async () => {
             if (spotify) {
@@ -50,106 +53,114 @@ export default function ScheduleContainer({ spotify, playlistId }: { spotify: Sp
 
     return (
         <DndProvider backend={HTML5Backend}>
-            {playlistId}
-            {
-                playlistWithSchedule?.getSlotsWithTracks()?.map((slot, index) => {
-                    return (
-                        <ScheduleSlot
-                            key={slot.getId() + "-slot"}
-                            slot={slot}
-                            spotify={spotify}
-                            syncing={true}
-                            nextSlot={playlistWithSchedule.getSlotsWithTracks().at(index + 1) || null}
-                            setLength={(length) => {
-                                let schedule = playlistWithSchedule.getSchedule();
-                                let newSchedule = schedule.resizeSlotLengthAt(index, length);
-                                let newPlaylist = playlistWithSchedule.newWithSchedule(newSchedule);
-                                setPlaylistWithSchedule(newPlaylist);
-                                console.debug("new playlist schedule: ", newPlaylist);
+            <PlaylistHeader
+                playlistWithSchedule={playlistWithSchedule}
+                syncing={syncing}
+                onToggleSync={() => {
+                    setSyncing(!syncing);
+                }}
+            />
+            <div className="playlist-view-container">
+                {
+                    playlistWithSchedule?.getSlotsWithTracks()?.map((slot, index) => {
+                        return (
+                            <ScheduleSlot
+                                key={slot.getId() + "-slot"}
+                                slot={slot}
+                                spotify={spotify}
+                                syncing={true}
+                                nextSlot={playlistWithSchedule.getSlotsWithTracks().at(index + 1) || null}
+                                setLength={(length) => {
+                                    let schedule = playlistWithSchedule.getSchedule();
+                                    let newSchedule = schedule.resizeSlotLengthAt(index, length);
+                                    let newPlaylist = playlistWithSchedule.newWithSchedule(newSchedule);
+                                    setPlaylistWithSchedule(newPlaylist);
+                                    console.debug("new playlist schedule: ", newPlaylist);
 
-                                if (spotify) {
-                                    updatePlaylistSchedule(spotify, playlistId, newSchedule);
-                                }
-                            }}
-                            onRemoveTrack={async (uri, id) => {
-                                console.debug("removing track: ", uri);
+                                    if (spotify) {
+                                        updatePlaylistSchedule(spotify, playlistId, newSchedule);
+                                    }
+                                }}
+                                onRemoveTrack={async (uri, id) => {
+                                    console.debug("removing track: ", uri);
 
-                                if (!spotify) {
-                                    return;
-                                }
+                                    if (!spotify) {
+                                        return;
+                                    }
 
-                                await spotify.playlists.removeItemsFromPlaylist(playlistId, {
-                                    tracks: [{
-                                        uri: uri,
-                                    }]
-                                });
+                                    await spotify.playlists.removeItemsFromPlaylist(playlistId, {
+                                        tracks: [{
+                                            uri: uri,
+                                        }]
+                                    });
 
-                                let slotIndex = playlistWithSchedule.getSlotIndexByTrackId(id);
-                                if (slotIndex !== null) {
-                                    let oldSongCount = playlistWithSchedule.getSchedule().getSongCountAt(slotIndex);
-                                    let newSchedule = playlistWithSchedule.getSchedule().resizeSongCountAt(slotIndex, oldSongCount - 1);
-                                    let newPlaylist = playlistWithSchedule
-                                        .newWithTracks(playlistWithSchedule.getTracks().filter((track) => track.track.uri !== uri))
-                                        .newWithSchedule(newSchedule);
+                                    let slotIndex = playlistWithSchedule.getSlotIndexByTrackId(id);
+                                    if (slotIndex !== null) {
+                                        let oldSongCount = playlistWithSchedule.getSchedule().getSongCountAt(slotIndex);
+                                        let newSchedule = playlistWithSchedule.getSchedule().resizeSongCountAt(slotIndex, oldSongCount - 1);
+                                        let newPlaylist = playlistWithSchedule
+                                            .newWithTracks(playlistWithSchedule.getTracks().filter((track) => track.track.uri !== uri))
+                                            .newWithSchedule(newSchedule);
+                                        setPlaylistWithSchedule(newPlaylist);
+                                        await updatePlaylistSchedule(spotify, playlistId, newSchedule);
+                                    }
+                                }}
+                                onRemoveSlot={async () => {
+                                    console.debug("removing slot: ", index);
+
+                                    if (!spotify) {
+                                        return;
+                                    }
+
+                                    let newSchedule = playlistWithSchedule.getSchedule().removeSlotAt(index);
+                                    let newPlaylist = playlistWithSchedule.newWithSchedule(newSchedule);
                                     setPlaylistWithSchedule(newPlaylist);
                                     await updatePlaylistSchedule(spotify, playlistId, newSchedule);
-                                }
-                            }}
-                            onRemoveSlot={async () => {
-                                console.debug("removing slot: ", index);
+                                }}
+                                splitSlot={async () => {
+                                    console.debug("splitting slot: ", index);
 
-                                if (!spotify) {
-                                    return;
-                                }
+                                    if (!spotify) {
+                                        return;
+                                    }
 
-                                let newSchedule = playlistWithSchedule.getSchedule().removeSlotAt(index);
-                                let newPlaylist = playlistWithSchedule.newWithSchedule(newSchedule);
-                                setPlaylistWithSchedule(newPlaylist);
-                                await updatePlaylistSchedule(spotify, playlistId, newSchedule);
-                            }}
-                            splitSlot={async () => {
-                                console.debug("splitting slot: ", index);
-
-                                if (!spotify) {
-                                    return;
-                                }
-
-                                let newSchedule = playlistWithSchedule.getSchedule().splitSlotAt(index);
-                                let newPlaylist = playlistWithSchedule.newWithSchedule(newSchedule);
-                                setPlaylistWithSchedule(newPlaylist);
-                                await updatePlaylistSchedule(spotify, playlistId, newSchedule);
-                            }}
-                            onDragAndDropTrack={async (id, indexInSlot) => {
-                                console.debug("drag and drop track: ", id, indexInSlot);
-                                const currentSlotIndex = playlistWithSchedule.getSlotIndexByTrackId(id);
-
-                                // When moving the track to a different slot we need to remove it from the old slot
-                                let newSchedule = playlistWithSchedule.getSchedule();
-                                if (currentSlotIndex !== index && currentSlotIndex !== null) {
-                                    newSchedule = newSchedule.resizeSongCountAt(currentSlotIndex, newSchedule.getSongCountAt(currentSlotIndex) - 1);
-                                    newSchedule = newSchedule.resizeSongCountAt(index, newSchedule.getSongCountAt(index) + 1);
-                                }
-
-                                const currentTrackIndex = playlistWithSchedule.getIndexByTrackId(id);
-                                if (currentTrackIndex !== null && spotify) {
-                                    const newTrackIndex = indexInSlot + playlistWithSchedule.getTrackNumBeforeSlot(index);
-                                    let tracks = playlistWithSchedule.getTracks();
-                                    const track = tracks[currentTrackIndex];
-                                    tracks.splice(currentTrackIndex, 1);
-                                    tracks.splice(newTrackIndex, 0, track);
-                                    let newPlaylist = playlistWithSchedule
-                                        .newWithTracks(tracks)
-                                        .newWithSchedule(newSchedule);
-
+                                    let newSchedule = playlistWithSchedule.getSchedule().splitSlotAt(index);
+                                    let newPlaylist = playlistWithSchedule.newWithSchedule(newSchedule);
                                     setPlaylistWithSchedule(newPlaylist);
-                                    await spotify.playlists.movePlaylistItems(playlistId, currentTrackIndex, 1, newTrackIndex);
                                     await updatePlaylistSchedule(spotify, playlistId, newSchedule);
-                                }
-                            }}
-                        />
-                    );
-                })
-            }
+                                }}
+                                onDragAndDropTrack={async (id, indexInSlot) => {
+                                    console.debug("drag and drop track: ", id, indexInSlot);
+                                    const currentSlotIndex = playlistWithSchedule.getSlotIndexByTrackId(id);
+
+                                    // When moving the track to a different slot we need to remove it from the old slot
+                                    let newSchedule = playlistWithSchedule.getSchedule();
+                                    if (currentSlotIndex !== index && currentSlotIndex !== null) {
+                                        newSchedule = newSchedule.resizeSongCountAt(currentSlotIndex, newSchedule.getSongCountAt(currentSlotIndex) - 1);
+                                        newSchedule = newSchedule.resizeSongCountAt(index, newSchedule.getSongCountAt(index) + 1);
+                                    }
+
+                                    const currentTrackIndex = playlistWithSchedule.getIndexByTrackId(id);
+                                    if (currentTrackIndex !== null && spotify) {
+                                        const newTrackIndex = indexInSlot + playlistWithSchedule.getTrackNumBeforeSlot(index);
+                                        let tracks = playlistWithSchedule.getTracks();
+                                        const track = tracks[currentTrackIndex];
+                                        tracks.splice(currentTrackIndex, 1);
+                                        tracks.splice(newTrackIndex, 0, track);
+                                        let newPlaylist = playlistWithSchedule
+                                            .newWithTracks(tracks)
+                                            .newWithSchedule(newSchedule);
+
+                                        setPlaylistWithSchedule(newPlaylist);
+                                        await spotify.playlists.movePlaylistItems(playlistId, currentTrackIndex, 1, newTrackIndex);
+                                        await updatePlaylistSchedule(spotify, playlistId, newSchedule);
+                                    }
+                                }}
+                            />
+                        );
+                    })
+                }
+            </div>
         </DndProvider>
     );
 }

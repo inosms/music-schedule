@@ -1,0 +1,7 @@
+.playlist-view-container {
+    --playlist-view-container-margin: 2rem;
+    margin-top: calc(var(--top-playlist-bar-height) + var(--playlist-view-container-margin));
+    margin-bottom: var(--playlist-view-container-margin);
+    margin-left: var(--playlist-view-container-margin);
+    margin-right: var(--playlist-view-container-margin);
+}

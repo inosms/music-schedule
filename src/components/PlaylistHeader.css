@@ -1,0 +1,96 @@
+.playlist-header {
+    position: fixed;
+    top: 0;
+    width: calc(100% - var(--top-playlist-padding) * 2);
+
+    z-index: 100;
+
+    display: grid;
+    grid-template-columns: 80px auto 80px;
+    align-items: center;
+
+    background-color: var(--element-background-playlist-idle);
+    backdrop-filter: blur(5px);
+    color: var(--element-foreground-playlist-idle);
+
+    padding: var(--top-playlist-padding);
+    height: var(--top-playlist-bar-height-without-padding);
+    
+    font-size: 1.2rem;
+
+    margin: 0;
+
+    
+
+    --button-size: 1.3rem;
+
+    >.back {
+        width: var(--button-size);
+        height: var(--button-size);
+
+        background-color: transparent;
+
+        border: solid 2px var(--element-foreground-playlist-idle);
+        padding: 5px;
+        border-radius: 30%;
+
+        stroke-width: 1px;
+        stroke: var(--element-foreground-playlist-idle);
+
+        cursor: pointer;
+
+        &:hover {
+            scale: 1.2;
+        }
+
+        transition: scale;
+        transition-duration: 0.2s;
+
+        &.-syncing {
+            fill: var(--element-foreground-playlist-playing);
+            stroke: var(--element-foreground-playlist-playing);
+            border-color: var(--element-foreground-playlist-playing);
+        }
+    }
+
+    >.title {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        text-align: left;
+        font-size: 1.5rem;
+    }
+
+    >.syncbutton {
+        justify-self: right;
+
+        width: var(--button-size);
+        height: var(--button-size);
+
+        background-color: transparent;
+
+        border: solid 2px var(--element-foreground-playlist-idle);
+        padding: 5px;
+        border-radius: 30%;
+
+        fill: var(--element-foreground-playlist-idle);
+        cursor: pointer;
+
+        &:hover {
+            scale: 1.2;
+        }
+
+        transition: scale;
+        transition-duration: 0.2s;
+
+        &.-syncing {
+            fill: var(--element-foreground-playlist-playing);
+            border-color: var(--element-foreground-playlist-playing);
+        }
+    }
+
+    &.-syncing {
+        background-color: var(--element-background-playlist-playing);
+        color: var(--element-foreground-playlist-playing);
+    }
+}

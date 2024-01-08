@@ -196,21 +196,23 @@ export class Schedule {
 
 export class PlaylistWithSchedule {
     private playlistId: string;
+    private title: string;
     private tracks: PlaylistedTrack[];
     private schedule: Schedule;
 
-    constructor(playlistId: string, tracks: PlaylistedTrack[], schedule: Schedule) {
+    constructor(playlistId: string, tracks: PlaylistedTrack[], schedule: Schedule, title: string) {
         this.playlistId = playlistId;
         this.tracks = tracks;
         this.schedule = schedule;
+        this.title = title;
     }
 
     newWithSchedule(schedule: Schedule): PlaylistWithSchedule {
-        return new PlaylistWithSchedule(this.playlistId, this.tracks, schedule);
+        return new PlaylistWithSchedule(this.playlistId, this.tracks, schedule, this.title);
     }
 
     newWithTracks(tracks: PlaylistedTrack[]): PlaylistWithSchedule {
-        return new PlaylistWithSchedule(this.playlistId, tracks, this.schedule);
+        return new PlaylistWithSchedule(this.playlistId, tracks, this.schedule, this.title);
     }
 
     getTracks(): PlaylistedTrack[] {
@@ -219,6 +221,10 @@ export class PlaylistWithSchedule {
 
     getSchedule(): Schedule {
         return this.schedule;
+    }
+
+    getTitle(): string {
+        return this.title;
     }
 
     // Returns the slots for a given day with the tracks per slot.
