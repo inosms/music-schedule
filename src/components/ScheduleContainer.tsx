@@ -61,6 +61,7 @@ export default function ScheduleContainer({ spotify, playlistId }: { spotify: Sp
                 }}
             />
             <div className="playlist-view-container">
+                <div className="centered">
                 {
                     playlistWithSchedule?.getSlotsWithTracks()?.map((slot, index) => {
                         return (
@@ -160,6 +161,7 @@ export default function ScheduleContainer({ spotify, playlistId }: { spotify: Sp
                         );
                     })
                 }
+                </div>
             </div>
         </DndProvider>
     );

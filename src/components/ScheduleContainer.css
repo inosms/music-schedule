@@ -4,4 +4,11 @@
     margin-bottom: var(--playlist-view-container-margin);
     margin-left: var(--playlist-view-container-margin);
     margin-right: var(--playlist-view-container-margin);
+
+    >.centered {
+        max-width: 800px;
+    }
+
+    display: flex;
+    justify-content: center;
 }
