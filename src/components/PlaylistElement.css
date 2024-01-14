@@ -4,6 +4,7 @@
     display: grid;
     grid-template-columns: 50% auto 50px;
 
+    width: 100%;
     align-items: center;
     padding: 1rem;
     margin: 1rem;
@@ -38,5 +39,15 @@
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
+    }
+
+    >.owner {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+
+        &.-own {
+            font-weight: bold;
+        }
     }
 }

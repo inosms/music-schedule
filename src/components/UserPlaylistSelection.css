@@ -1,3 +1,10 @@
 .playlist-selection-container {
-    margin: 4rem;
+    margin: 0 auto;
+    max-width: var(--max-width);
+    padding-left: 2rem;
+    padding-right: 2rem;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }

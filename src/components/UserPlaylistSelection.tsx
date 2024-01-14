@@ -20,9 +20,15 @@ async function getAllPlaylistsForCurrentUser(spotify: SpotifyApi): Promise<Simpl
     return playlists;
 }
 
+async function getCurrentUserName(spotify: SpotifyApi): Promise<string> {
+    const user = await spotify.currentUser.profile();
+    return user.display_name ?? user.id;
+}
+
 export default function UserPlaylistSelection({ spotify }: { spotify: SpotifyApi | null }) {
     const [playlistsWithSchedule, setPlaylistsWithSchedule] = useState<SimplifiedPlaylist[]>([]);
     const [playlistsWithoutSchedule, setPlaylistsWithoutSchedule] = useState<SimplifiedPlaylist[]>([]);
+    const [currentUserName, setCurrentUserName] = useState<string | null>(null);
     useEffect(() => {
         (async () => {
             if (spotify) {
@@ -32,6 +38,9 @@ export default function UserPlaylistSelection({ spotify }: { spotify: SpotifyApi
                 
                 const playlistsWithoutSchedule = playlists.filter((playlist) => Schedule.fromString(playlist.description) === null);
                 setPlaylistsWithoutSchedule(playlistsWithoutSchedule);
+
+                const currentUserName = await getCurrentUserName(spotify);
+                setCurrentUserName(currentUserName);
             }
         })();
     }, [spotify]);
@@ -41,14 +50,14 @@ export default function UserPlaylistSelection({ spotify }: { spotify: SpotifyApi
             {
                 playlistsWithSchedule.map((playlist) => {
                     return (
-                        <PlaylistElement key={playlist.id} playlist={playlist} hasSchedule={true} />
+                        <PlaylistElement key={playlist.id} playlist={playlist} hasSchedule={true} isOwn={currentUserName === playlist?.owner?.display_name} />
                     );
                 })
             }
             {
                 playlistsWithoutSchedule.map((playlist) => {
                     return (
-                        <PlaylistElement key={playlist.id} playlist={playlist} hasSchedule={false} />
+                        <PlaylistElement key={playlist.id} playlist={playlist} hasSchedule={false} isOwn={currentUserName === playlist?.owner?.display_name} />
                     );
                 })
             }

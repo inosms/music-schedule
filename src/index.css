@@ -41,6 +41,8 @@
   --top-playlist-bar-height-without-padding: 2em;
   --top-playlist-padding: 1em;
   --top-playlist-bar-height: calc(2 * var(--top-playlist-bar-height-without-padding) + var(--top-playlist-padding));
+
+  --max-width: 600px;
 }
 
 body {

@@ -6,7 +6,7 @@
     margin-right: var(--playlist-view-container-margin);
 
     >.centered {
-        max-width: 800px;
+        max-width: var(--max-width);
     }
 
     display: flex;
