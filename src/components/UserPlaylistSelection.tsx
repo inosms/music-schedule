@@ -6,23 +6,33 @@ import { Schedule } from '../schedule';
 
 // Returns all playlists for the current user
 async function getAllPlaylistsForCurrentUser(spotify: SpotifyApi): Promise<SimplifiedPlaylist[]> {
-    let playlists: SimplifiedPlaylist[] = [];
+    try {
+        let playlists: SimplifiedPlaylist[] = [];
 
-    while (true) {
-        const response = await spotify.currentUser.playlists.playlists(50, playlists.length);
-        playlists = playlists.concat(response.items);
+        while (true) {
+            const response = await spotify.currentUser.playlists.playlists(50, playlists.length);
+            playlists = playlists.concat(response.items);
 
-        if (!response.next) {
-            break;
+            if (!response.next) {
+                break;
+            }
         }
-    }
 
-    return playlists;
+        return playlists;
+    } catch (e) {
+        console.error(e);
+        return [];
+    }
 }
 
-async function getCurrentUserName(spotify: SpotifyApi): Promise<string> {
-    const user = await spotify.currentUser.profile();
-    return user.display_name ?? user.id;
+async function getCurrentUserName(spotify: SpotifyApi): Promise<string | null> {
+    try {
+        const user = await spotify.currentUser.profile();
+        return user.display_name ?? user.id;
+    } catch (e) {
+        console.error(e);
+        return null;
+    }
 }
 
 export default function UserPlaylistSelection({ spotify }: { spotify: SpotifyApi | null }) {
@@ -35,7 +45,7 @@ export default function UserPlaylistSelection({ spotify }: { spotify: SpotifyApi
                 const playlists = await getAllPlaylistsForCurrentUser(spotify);
                 const playlistsWithSchedule = playlists.filter((playlist) => Schedule.fromString(playlist.description) !== null);
                 setPlaylistsWithSchedule(playlistsWithSchedule);
-                
+
                 const playlistsWithoutSchedule = playlists.filter((playlist) => Schedule.fromString(playlist.description) === null);
                 setPlaylistsWithoutSchedule(playlistsWithoutSchedule);
 
