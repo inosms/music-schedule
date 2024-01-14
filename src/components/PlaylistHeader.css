@@ -16,13 +16,9 @@
     padding: var(--top-playlist-padding);
     height: var(--top-playlist-bar-height-without-padding);
     
-    font-size: 1.2rem;
-
     margin: 0;
 
-    
-
-    --button-size: 1.3rem;
+    --button-size: 1.0rem;
 
     >.back {
         width: var(--button-size);
@@ -58,7 +54,7 @@
         flex-direction: column;
         justify-content: center;
         text-align: left;
-        font-size: 1.5rem;
+        font-size: 1.2rem;
     }
 
     >.syncbutton {

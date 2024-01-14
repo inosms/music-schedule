@@ -1,11 +1,11 @@
 .horizontal-container {
-    margin: 0.1rem;
+    margin: var(--list-element-margin);
     display: grid;
     grid-template-columns: 95% auto;
 }
 
 .song-element {
-    padding: 0.3rem;
+    padding: var(--list-element-padding);
     border-radius: 0.5rem;
     background-color: var(--element-background-idle);
     color: var(--element-foreground-idle);
@@ -16,7 +16,7 @@
     display: grid;
     grid-template-columns: auto 50px;
     align-items: center;
-    font-size: 1rem;
+    font-size: var(--list-element-font-size);
 
     cursor: grab;
 
@@ -35,7 +35,6 @@
     }
     
     >.name {
-        padding: 0.2rem;
         border: none;
 
         text-align: left;
@@ -47,7 +46,6 @@
     }
 
     >.duration {
-        padding: 0.2rem;
         border: none;
 
         text-align: right;

@@ -6,8 +6,8 @@
 
     width: 100%;
     align-items: center;
-    padding: 1rem;
-    margin: 1rem;
+    padding: var(--list-element-padding);
+    margin: var(--list-element-margin);
     height: var(--playlist-height);
     border-radius: 0.5rem;
     background-color: var(--element-background-idle);
@@ -18,6 +18,8 @@
     transition-duration: 0.2s;
     cursor: pointer;
 
+    font-size: var(--list-element-font-size);
+    
     &:hover {
         scale: 1.03;
     }
