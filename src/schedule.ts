@@ -6,7 +6,7 @@ export class Schedule {
     private minutesPerSlot: number[];
     private songsPerSlot: number[];
 
-    private constructor(minutesPerSlot: number[], songsPerSlot: number[]) {
+    constructor(minutesPerSlot: number[], songsPerSlot: number[]) {
         this.minutesPerSlot = minutesPerSlot;
         this.songsPerSlot = songsPerSlot;
 
@@ -54,7 +54,7 @@ export class Schedule {
             return null;
         }
 
-        // the slots may not add up to more than 24 hours
+        // The slots may not add up to more than 24 hours.
         const totalMinutes = minutesPerSlot.reduce((a, b) => a + b, 0);
         if (totalMinutes > 24 * 60) {
             return null;
@@ -75,7 +75,7 @@ export class Schedule {
 
     // Returns the number of minutes per slot for a given day.
     // The last slot is padded with the remaining minutes so that the total is 24 hours.
-    getSlotsLengthsForOneDay(): number[] {
+    private getSlotsLengthsForOneDay(): number[] {
         const slots = [...this.minutesPerSlot];
         const totalMinutes = slots.reduce((a, b) => a + b, 0);
         const remainingMinutes = 24 * 60 - totalMinutes;
@@ -102,235 +102,278 @@ export class Schedule {
         return slotsWithSongs;
     }
 
-    // Returns a new schedule with the slot at the given index resized to the given length.
-    // The slots after the given slot are resized to keep the absolute time of the following slots the same.
-    resizeSlotLengthAt(index: number, newLengthMinutes: number): Schedule {
-        if (index < 0) {
-            return this;
-        }
-
-        // Append new slots if the index is out of bounds.
-        if (index >= this.minutesPerSlot.length) {
-            return new Schedule([...this.minutesPerSlot, newLengthMinutes], [...this.songsPerSlot, 0]);
-        }
-
-        const newMinutesPerSlot = [...this.minutesPerSlot];
-        const diff = newLengthMinutes - newMinutesPerSlot[index];
-        newMinutesPerSlot[index] += diff;
-
-        // Resize the next slot to keep the absolute time of the following slots the same.
-        if (index < newMinutesPerSlot.length - 1) {
-            newMinutesPerSlot[index + 1] -= diff;
-        }
-
-        return new Schedule(newMinutesPerSlot, this.songsPerSlot);
-    }
-
-    // Returns a new schedule with the slot at the given index resized to the given number of songs.
-    // Other slots are not changed.
-    resizeSongCountAt(index: number, newSongCount: number): Schedule {
-        if (index < 0 || index >= this.songsPerSlot.length) {
-            return this;
-        }
-
-        const newSongsPerSlot = [...this.songsPerSlot];
-        newSongsPerSlot[index] = newSongCount;
-
-        return new Schedule(this.minutesPerSlot, newSongsPerSlot);
-    }
-
-    // Removes a slot at the given index.
-    // The songs and the time of the given slot will be moved to the next slot
-    removeSlotAt(index: number): Schedule {
-        if (index < 0 || index >= this.minutesPerSlot.length) {
-            return this;
-        }
-
-        const newMinutesPerSlot = [...this.minutesPerSlot];
-        const newSongsPerSlot = [...this.songsPerSlot];
-
-        if (index < newMinutesPerSlot.length - 1) {
-            newMinutesPerSlot[index + 1] += newMinutesPerSlot[index];
-            newSongsPerSlot[index + 1] += newSongsPerSlot[index];
-        }
-
-        newMinutesPerSlot.splice(index, 1);
-        newSongsPerSlot.splice(index, 1);
-
-        return new Schedule(newMinutesPerSlot, newSongsPerSlot);
-    }
-
-    getSongCountAt(index: number): number {
-        if (index < 0 || index >= this.songsPerSlot.length) {
-            return 0;
-        }
-
-        return this.songsPerSlot[index];
-    }
-
-
-    // Returns a new schedule with the slot at the given index split in two.
-    // All songs will be moved to the latter slot.
-    splitSlotAt(index: number): Schedule {
-        if (index < 0) {
-            return this;
-        }
-
-        if (index >= this.minutesPerSlot.length) {
-            const lastSlotLength = this.getSlotsLengthsForOneDay().pop() ?? 0;
-
-            if (lastSlotLength === 0) {
-                return this;
-            }
-
-            return new Schedule([...this.minutesPerSlot, lastSlotLength / 2], [...this.songsPerSlot, 0]);
-        }
-
-        const newMinutesPerSlot = [...this.minutesPerSlot];
-        const newSongsPerSlot = [...this.songsPerSlot];
-
-        const currentSlotLength = newMinutesPerSlot[index];
-        const currentSlotSongs = newSongsPerSlot[index];
-
-        newMinutesPerSlot[index] = currentSlotLength / 2;
-        newSongsPerSlot[index] = 0;
-
-        newMinutesPerSlot.splice(index + 1, 0, currentSlotLength / 2);
-        newSongsPerSlot.splice(index + 1, 0, currentSlotSongs);
-
-        return new Schedule(newMinutesPerSlot, newSongsPerSlot);
-    }
-
     static defaultSchedule(): Schedule {
         return new Schedule([], []);
     }
 }
 
-export class PlaylistWithSchedule {
-    private playlistId: string;
+export class ScheduledPlaylist {
+    private id: string;
     private title: string;
-    private tracks: PlaylistedTrack[];
-    private schedule: Schedule;
+    private slots: PlaylistSlot[];
 
-    constructor(playlistId: string, tracks: PlaylistedTrack[], schedule: Schedule, title: string) {
-        this.playlistId = playlistId;
-        this.tracks = tracks;
-        this.schedule = schedule;
+    private constructor(id: string, title: string, slots: PlaylistSlot[]) {
+        this.id = id;
         this.title = title;
+        this.slots = slots;
     }
 
-    newWithSchedule(schedule: Schedule): PlaylistWithSchedule {
-        return new PlaylistWithSchedule(this.playlistId, this.tracks, schedule, this.title);
+    static newFromSchedule(id: string, title: string, schedule: Schedule, tracks: PlaylistedTrack[]) {
+        const slotsWithSongCount = schedule.getSlotsWithSongsForOneDay();
+        const slots: PlaylistSlot[] = [];
+        let currentTrack = 0;
+        for (let i = 0; i < slotsWithSongCount.length; i++) {
+            const slot = slotsWithSongCount[i];
+            const startTimeMinutes = slot.startTimeMinutes;
+            const lengthMinutes = slot.lengthMinutes;
+            const songs = slot.songs;
+
+            const tracksForSlot = tracks.slice(currentTrack, currentTrack + songs);
+            currentTrack += songs;
+
+            slots.push(new PlaylistSlot(startTimeMinutes, startTimeMinutes + lengthMinutes, tracksForSlot));
+        }
+
+        return new ScheduledPlaylist(id, title, slots);
     }
 
-    newWithTracks(tracks: PlaylistedTrack[]): PlaylistWithSchedule {
-        return new PlaylistWithSchedule(this.playlistId, tracks, this.schedule, this.title);
+    private newWithSlots(slots: PlaylistSlot[]): ScheduledPlaylist {
+        const schedule = ScheduledPlaylist.getScheduleFromSlots(slots);
+        const tracks = slots.flatMap((slot) => slot.getTracks());
+        return ScheduledPlaylist.newFromSchedule(this.id, this.title, schedule, tracks);
     }
 
-    getTracks(): PlaylistedTrack[] {
-        return this.tracks;
+    // Splits the slot at the given index in two of equal length.
+    // If the split fails (out of bounds, slot too short), the original playlist is returned.
+    splitSlot(slotIndex: number): ScheduledPlaylist {
+        if (slotIndex < 0 || slotIndex >= this.slots.length) {
+            return this;
+        }
+
+        const splitSlot = this.slots[slotIndex].splitSlot();
+        let newSlots = [...this.slots];
+        newSlots.splice(slotIndex, 1, ...splitSlot);
+
+        return this.newWithSlots(newSlots);
     }
 
-    getSchedule(): Schedule {
-        return this.schedule;
+    // Resizes the slot at the given index to the given length.
+    // If the resize fails (out of bounds, slot too short), the original playlist is returned.
+    // The total length of the slots may not be or exceed 24 hours.
+    resizeSlot(slotIndex: number, newLengthMinutes: number): ScheduledPlaylist {
+        if (slotIndex < 0 || slotIndex >= this.slots.length) {
+            return this;
+        }
+
+        const slot = this.slots[slotIndex];
+        const newSlot = slot.resizeSlot(newLengthMinutes);
+        if (!newSlot) {
+            return this;
+        }
+        let newSlots = [...this.slots];
+        newSlots.splice(slotIndex, 1, newSlot);
+
+        // When resizing a slot, the next slot needs to be adjusted to start at the end of the resized slot.
+        // This only works if the next slot is not the last slot.
+        if (slotIndex < newSlots.length - 1) {
+            const nextSlot = newSlots[slotIndex + 1];
+            const newNextSlot = nextSlot.newWithStartTime(newSlot.getEndTime());
+            newSlots.splice(slotIndex + 1, 1, newNextSlot);
+        }
+
+        return this.newWithSlots(newSlots);
+    }
+
+    // Removes the slot at the given index.
+    // Adds the tracks from the removed slot to the next slot.
+    removeSlot(slotIndex: number): ScheduledPlaylist {
+        if (slotIndex < 0 || slotIndex >= this.slots.length) {
+            return this;
+        }
+
+        let newSlots = [...this.slots];
+        const removedSlot = newSlots.splice(slotIndex, 1)[0];
+
+        // When removing a slot, the slot is effectively merged with the next slot.
+        // For merging the slots, the tracks from the removed slot are added to the next slot.
+        // Also the start time of the next slot is changed to the start time of the removed slot.
+        const nextSlot = newSlots[slotIndex];
+        let newNextSlot = nextSlot.newWithStartTime(removedSlot.getStartTime());
+        newNextSlot = newNextSlot.newWithTracks([...removedSlot.getTracks(), ...nextSlot.getTracks()]);
+        newSlots.splice(slotIndex, 1, newNextSlot);
+
+        return this.newWithSlots(newSlots);
+    }
+
+    // Removes the track at the given index in the given slot.
+    removeTrack(slotIndex: number, trackIndex: number): ScheduledPlaylist {
+        if (slotIndex < 0 || slotIndex >= this.slots.length) {
+            return this;
+        }
+
+        const newSlot = this.slots[slotIndex].removeTrack(trackIndex);
+        let newSlots = [...this.slots];
+        newSlots.splice(slotIndex, 1, newSlot);
+
+        return this.newWithSlots(newSlots);
+    }
+
+    // Moves the track at the given index in the given slot to the given index in the given slot.
+    moveTrack(fromSlotIndex: number, fromTrackIndex: number, toSlotIndex: number, toTrackIndex: number): ScheduledPlaylist {
+        if (fromSlotIndex < 0 || fromSlotIndex >= this.slots.length || toSlotIndex < 0 || toSlotIndex >= this.slots.length) {
+            return this;
+        }
+
+        const fromSlot = this.slots[fromSlotIndex];
+        const toSlot = this.slots[toSlotIndex];
+
+        if (fromSlotIndex === toSlotIndex) {
+            if (fromTrackIndex < toTrackIndex) {
+                toTrackIndex--;
+            }
+
+            const fromTrack = fromSlot.getTrackByIndex(fromTrackIndex);
+            if (!fromTrack) {
+                return this;
+            }
+
+            const newSlot = fromSlot
+                .removeTrack(fromTrackIndex)
+                .addTrack(toTrackIndex, fromTrack);
+            let newSlots = [...this.slots];
+            newSlots.splice(fromSlotIndex, 1, newSlot);
+
+            return this.newWithSlots(newSlots);
+        } else {
+            const fromTrack = fromSlot.getTrackByIndex(fromTrackIndex);
+            if (!fromTrack) {
+                return this;
+            }
+
+            const newFromSlot = fromSlot.removeTrack(fromTrackIndex);
+            const newToSlot = toSlot.addTrack(toTrackIndex, fromTrack);
+
+            let newSlots = [...this.slots];
+            newSlots.splice(fromSlotIndex, 1, newFromSlot);
+            newSlots.splice(toSlotIndex, 1, newToSlot);
+
+            return this.newWithSlots(newSlots);
+        }
+    }
+
+    getSlots(): PlaylistSlot[] {
+        return this.slots;
     }
 
     getTitle(): string {
         return this.title;
     }
 
-    // Returns the slots for a given day with the tracks per slot.
-    getSlotsWithTracks(): SlotWithTracks[] {
-        const slotsWithSongs = this.schedule.getSlotsWithSongsForOneDay();
-
-        const slotsWithTracks: SlotWithTracks[] = [];
-        let currentTrack = 0;
-
-        for (let i = 0; i < slotsWithSongs.length; i++) {
-            const slot = slotsWithSongs[i];
-            const startTimeMinutes = slot.startTimeMinutes;
-            const lengthMinutes = slot.lengthMinutes;
-            const songs = slot.songs;
-
-            const tracksForSlot = this.tracks.slice(currentTrack, currentTrack + songs);
-            currentTrack += songs;
-
-            slotsWithTracks.push(new SlotWithTracks(startTimeMinutes, lengthMinutes, tracksForSlot));
-        }
-
-        return slotsWithTracks;
-    }
-
-    // Returns the slot index for the given track id or null if the track is not in the playlist.
-    getSlotIndexByTrackId(trackId: string): number | null {
-        const slots = this.getSlotsWithTracks();
-        for (let i = 0; i < slots.length; i++) {
-            if (slots[i].containsTrack(trackId)) {
-                return i;
-            }
-        }
-
-        return null;
-    }
-
-    // Returns the track index for the given track id or null if the track is not in the playlist.
-    getIndexByTrackId(trackId: string): number | null {
-        return this.tracks.findIndex((track) => track.track.id === trackId);
-    }
-
-    getTrackNumBeforeSlot(slotIndex: number): number {
-        const slots = this.getSlotsWithTracks();
-        let trackNum = 0;
-        for (let i = 0; i < slotIndex; i++) {
-            trackNum += slots[i].getTracks().length;
-        }
-
-        return trackNum;
-    }
-}
-
-export class SlotWithTracks {
-    private startTimeMinutes: number;
-    private lengthMinutes: number;
-    private tracks: PlaylistedTrack[];
-    private id: string;
-
-    constructor(startTimeMinutes: number, lengthMinutes: number, tracks: PlaylistedTrack[]) {
-        this.startTimeMinutes = startTimeMinutes;
-        this.lengthMinutes = lengthMinutes;
-        this.tracks = tracks;
-        this.id = `id-${startTimeMinutes}-${lengthMinutes}-${tracks.map((track) => track.track.id).join('-')}`;
-    }
-
     getId(): string {
         return this.id;
     }
 
-    getStartTimeMinutes(): number {
-        return this.startTimeMinutes;
-    }
-
-    getLengthMinutes(): number {
-        return this.lengthMinutes;
-    }
-
     getTracks(): PlaylistedTrack[] {
-        return this.tracks;
+        return this.slots.flatMap((slot) => slot.getTracks());
     }
 
-    // Returns true when the slot should be played at the current time.
-    shouldPlayNow(): boolean {
-        const now = new Date();
-        const nowMinutes = now.getHours() * 60 + now.getMinutes();
-
-        return nowMinutes >= this.startTimeMinutes && nowMinutes < this.startTimeMinutes + this.lengthMinutes;
+    getSchedule(): Schedule {
+        return ScheduledPlaylist.getScheduleFromSlots(this.slots);
     }
 
-    containsTrack(id: string): boolean {
-        return this.tracks.some((track) => track.track.id === id);
+    private static getScheduleFromSlots(slots: PlaylistSlot[]): Schedule {
+        const minutesPerSlot = slots.map((slot) => slot.getEndTime() - slot.getStartTime());
+        const songsPerSlot = slots.map((slot) => slot.count());
+
+        return new Schedule(minutesPerSlot, songsPerSlot);
+    }
+}
+
+export class PlaylistSlot {
+    private startTime: number;
+    private endTime: number;
+    private tracks: PlaylistedTrack[];
+
+    constructor(startTime: number, endTime: number, tracks: PlaylistedTrack[]) {
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.tracks = tracks;
     }
 
-    // Returns the track with the given index or null if the index is out of bounds.
+    // Returns a new slot with the given tracks.
+    newWithTracks(tracks: PlaylistedTrack[]): PlaylistSlot {
+        return new PlaylistSlot(this.startTime, this.endTime, tracks);
+    }
+
+    newWithStartTime(startTime: number): PlaylistSlot {
+        return new PlaylistSlot(startTime, this.endTime, this.tracks);
+    }
+
+    // Splits the given slot in two of equal length. 
+    // If the slot is only one minute long, it is not split.
+    splitSlot(): PlaylistSlot[] {
+        const length = this.endTime - this.startTime;
+        if (length <= 1) {
+            return [this];
+        }
+
+        const halfLength = Math.floor(length / 2);
+        const remainder = length % 2;
+
+        const firstTracks = this.tracks.slice(0, Math.floor(this.tracks.length / 2));
+        const secondTracks = this.tracks.slice(Math.floor(this.tracks.length / 2));
+
+        const firstSlot = new PlaylistSlot(this.startTime, this.startTime + halfLength + remainder, firstTracks);
+        const secondSlot = new PlaylistSlot(this.startTime + halfLength + remainder, this.endTime, secondTracks);
+
+        return [firstSlot, secondSlot];
+    }
+
+    // Resizes the slot to the given length.
+    // A slot can not be 24 hours long or shorter than 1 minute.
+    // The size is rounded to the nearest minute.
+    resizeSlot(newLengthMinutes: number): PlaylistSlot | null {
+        const newLength = Math.round(newLengthMinutes);
+        if (newLength < 1 || newLength > 24 * 60) {
+            return null;
+        }
+
+        const newEndTime = this.startTime + newLength;
+        return new PlaylistSlot(this.startTime, newEndTime, this.tracks);
+    }
+
+    // Returns the count of tracks in this slot.
+    count(): number {
+        return this.tracks.length;
+    }
+
+    // Removes the track at the given index.
+    // If the index is out of bounds, the original slot is returned.
+    removeTrack(index: number): PlaylistSlot {
+        if (index < 0 || index >= this.tracks.length) {
+            return this;
+        }
+
+        const newTracks = [...this.tracks];
+        newTracks.splice(index, 1);
+
+        return new PlaylistSlot(this.startTime, this.endTime, newTracks);
+    }
+
+    // Adds the given track at the given index.
+    // If the index is out of bounds, the original slot is returned.
+    addTrack(index: number, track: PlaylistedTrack): PlaylistSlot {
+        if (index < 0 || index > this.tracks.length) {
+            return this;
+        }
+
+        const newTracks = [...this.tracks];
+        newTracks.splice(index, 0, track);
+
+        return new PlaylistSlot(this.startTime, this.endTime, newTracks);
+    }
+
+    // Returns the track at the given index or null if the index is out of bounds.
     getTrackByIndex(index: number): PlaylistedTrack | null {
         if (index < 0 || index >= this.tracks.length) {
             return null;
@@ -339,29 +382,57 @@ export class SlotWithTracks {
         return this.tracks[index];
     }
 
-    // Returns the track after the track with the given id or null if the track is not in this slot.
-    // If the track is the last track in the slot, the first track is returned.
-    getTrackAfter(id: string): PlaylistedTrack | null {
-        const index = this.tracks.findIndex((track) => track.track.id === id);
-        if (index === -1) {
-            return null;
-        }
-
-        return this.tracks[(index + 1) % this.tracks.length];
-    }
-
-    // Returns whether this slot is empty.
     isEmpty(): boolean {
-        return this.tracks.length === 0;
+        return this.count() === 0;
     }
 
-    /// Returns whether this slot is the first slot of the day.
+    getStartTime(): number {
+        return this.startTime;
+    }
+
+    getEndTime(): number {
+        return this.endTime;
+    }
+
+    getLength(): number {
+        return this.endTime - this.startTime;
+    }
+
+    getTracks(): PlaylistedTrack[] {
+        return this.tracks;
+    }
+
+    // Returns whether this slot is the first slot of the day.
     isFirstSlot(): boolean {
-        return this.startTimeMinutes === 0;
+        return this.startTime === 0;
     }
 
     // Returns whether this slot is the last slot of the day.
     isLastSlot(): boolean {
-        return this.startTimeMinutes + this.lengthMinutes === 24 * 60;
+        return this.endTime === 24 * 60;
+    }
+
+    id(): string {
+        return `id-${this.startTime}-${this.endTime}-${this.tracks.map((track) => track.track.id).join('-')}`;
+    }
+
+    shouldPlayNow(): boolean {
+        const now = new Date();
+        const nowMinutes = now.getHours() * 60 + now.getMinutes();
+
+        return nowMinutes >= this.startTime && nowMinutes < this.endTime;
+    }
+
+    containsUri(uri: string): boolean {
+        return this.tracks.some((track) => track.track.uri === uri);
+    }
+
+    getTrackAfterUri(uri: string): PlaylistedTrack | null {
+        const index = this.tracks.findIndex((track) => track.track.uri === uri);
+        if (index < 0 || index >= this.tracks.length - 1) {
+            return null;
+        }
+
+        return this.tracks[(index + 1) % this.tracks.length];
     }
 }

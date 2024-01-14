@@ -9,10 +9,10 @@ function msToMinutesAndSeconds(ms: number): string {
     return minutes + ":" + (seconds < 10 ? '0' : '') + seconds;
 }
 
-export function SlotSongElement({ track, onRemove, currentlyPlaying, syncing }: { track: PlaylistedTrack, onRemove: () => void, currentlyPlaying: boolean, syncing: boolean }) {
+export function SlotSongElement({ track, onRemove, currentlyPlaying, syncing, slotIndex, indexInSlot }: { track: PlaylistedTrack, onRemove: () => void, currentlyPlaying: boolean, syncing: boolean, slotIndex: number, indexInSlot: number }) {
     const [{isDragging}, drag] = useDrag({
         type: "track",
-        item: { track },
+        item: { track, slotIndex, indexInSlot },
         collect: (monitor) => ({
             isDragging: monitor.isDragging(),
         }),

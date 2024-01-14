@@ -1,8 +1,8 @@
 import { Link } from "react-router-dom"
-import { PlaylistWithSchedule } from "../schedule"
+import { ScheduledPlaylist } from "../schedule"
 import "./PlaylistHeader.css"
 
-export function PlaylistHeader({ playlistWithSchedule, syncing, onToggleSync }: { playlistWithSchedule: PlaylistWithSchedule | null, syncing: boolean, onToggleSync: () => void }) {
+export function PlaylistHeader({ playlistWithSchedule, syncing, onToggleSync }: { playlistWithSchedule: ScheduledPlaylist | null, syncing: boolean, onToggleSync: () => void }) {
     return (
         <div className={"playlist-header " + (syncing ? "-syncing" : "")}>
             <Link to="/" className={"back" + (syncing ? " -syncing" : "")}>
