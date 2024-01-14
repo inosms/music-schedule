@@ -429,7 +429,7 @@ export class PlaylistSlot {
 
     getTrackAfterUri(uri: string): PlaylistedTrack | null {
         const index = this.tracks.findIndex((track) => track.track.uri === uri);
-        if (index < 0 || index >= this.tracks.length - 1) {
+        if (index < 0) {
             return null;
         }
 

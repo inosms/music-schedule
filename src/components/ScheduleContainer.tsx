@@ -139,7 +139,7 @@ export default function ScheduleContainer({ spotify, playlistId }: { spotify: Sp
                         }
                         const nextSongInQueue = queueUris.some((uri) => uri === nextSongUri);
                         if (!nextSongInQueue) {
-                            console.debug("adding next song to queue");
+                            console.debug("adding next song to queue: ", nextSongUri);
                             await spotify.player.addItemToPlaybackQueue(nextSongUri ?? "", currentlyPlaying?.device?.id ?? "");
                         }
 
@@ -173,7 +173,7 @@ export default function ScheduleContainer({ spotify, playlistId }: { spotify: Sp
         const intervalId = setInterval(syncPlayback, 30000);
         syncPlayback();
         return () => clearInterval(intervalId);
-    }, [spotify, syncing]);
+    }, [spotify, syncing, playlistWithSchedule, currentlyPlayingTrack]);
 
     let playlistRenderContent;
     const [buttonState, setButtonState] = useState<ButtonState>(ButtonState.NotPressed);
